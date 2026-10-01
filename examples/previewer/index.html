@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>The Previewer</title>
+
+<!--
+  The library's one-call entry point, inside an application.
+
+  The page is an app: a toolbar, a hidden manuscript, and a pane the pages go
+  into. Nothing is paginated until the button is pressed, and then only the
+  manuscript — the toolbar and the rest of the app are left alone.
+
+  It also shows three pieces of GCPM a book uses on its first pages: a table
+  of contents whose page numbers are only known after pagination, joined to
+  the titles by dot leaders; a footnote; and a cross-reference.
+-->
+
+<style>
+  /* ---- The book: ordinary CSS Paged Media ------------------------------- */
+  @page {
+    size: A5;
+    margin: 18mm 16mm 20mm;
+    @bottom-center { content: counter(page); font: 9pt/1 Georgia, serif; color: #555 }
+  }
+  @page :first { @bottom-center { content: none } }
+
+  /* Selectors name the content, not the #manuscript around it: a page is
+     composed from the manuscript's children, so the container itself is never
+     an ancestor of anything on a page (doc/using.md, "Three things"). */
+  .book-title { font: 22pt/1.2 Georgia, serif; margin: 0 0 1.2rem }
+  .toc { list-style: none; margin: 0; padding: 0; font: 11pt/1.8 Georgia, serif }
+  .toc a { color: inherit; text-decoration: none }
+  .toc a::after { content: leader(dotted) " " target-counter(attr(href), page) }
+
+  .chapter { break-before: page }
+  .chapter h2 { font: bold 14pt/1.3 Georgia, serif; margin: 0 0 0.8rem; break-after: avoid }
+  .chapter p { font: 11pt/1.5 Georgia, serif; margin: 0 0 0.6rem; text-align: justify;
+               hyphens: auto; orphans: 2; widows: 2 }
+  .note { float: footnote }
+  .xref::after { content: " (page " target-counter(attr(href), page) ")" }
+
+  /* ---- The application around it ---------------------------------------- */
+  @media screen {
+    body { margin: 0; font: 15px/1.5 system-ui, sans-serif; background: #eceef2 }
+    #bar { position: sticky; top: 0; z-index: 1; display: flex; gap: 1rem; align-items: center;
+           padding: 0.6rem 1rem; background: #fff; border-bottom: 1px solid #0002 }
+    #manuscript { display: none }
+    #preview .pagedjs_page { background: #fff; box-shadow: 0 1px 6px #0003; margin: 1.5rem auto }
+  }
+</style>
+
+<div id="bar">
+  <button id="go">Paginate</button>
+  <span id="status">The manuscript is hidden until it is paginated.</span>
+</div>
+
+<article id="manuscript">
+  <h1 class="book-title">A Short Book</h1>
+  <ol class="toc">
+    <li><a href="#one">The first chapter</a></li>
+    <li><a href="#two">A second chapter, with a longer title that has to wrap</a></li>
+    <li><a href="#three">The last chapter</a></li>
+  </ol>
+
+  <section class="chapter" id="one">
+    <h2>The first chapter</h2>
+    <p>Every page of this book was measured in a frame the application never
+    sees, and composed from the manuscript rather than cut out of it.<span
+    class="note">The manuscript itself is never changed. Afterwards it is kept
+    in a template, so a page can be laid out again from its record.</span></p>
+    <p>The page number in the table of contents was not known when this
+    paragraph was measured. It is filled in afterwards, and so are the dots
+    that lead to it.</p>
+  </section>
+
+  <section class="chapter" id="two">
+    <h2>A second chapter, with a longer title that has to wrap</h2>
+    <p>A reference to <a class="xref" href="#three">the last chapter</a> knows
+    which page it is on, because references are resolved after the pages
+    exist.</p>
+  </section>
+
+  <section class="chapter" id="three">
+    <h2>The last chapter</h2>
+    <p>That is the whole of it.</p>
+  </section>
+</article>
+
+<div id="preview"></div>
+
+<script type="module">
+  import * as folio from "/dist/folio.mjs";
+
+  const status = document.getElementById("status");
+  const button = document.getElementById("go");
+
+  button.addEventListener("click", async () => {
+    button.disabled = true;
+    status.textContent = "Paginating…";
+
+    // What to paginate, which extra stylesheets to add (none: the document's
+    // own are read), and where the pages go. Paged.js's argument order.
+    const previewer = new folio.Previewer({ maxPages: 200 });
+    const flow = await previewer.preview("#manuscript", [], "#preview");
+
+    status.textContent =
+      `${flow.total} pages in ${flow.performance} ms` +
+      (flow.overflowed.length > 0 ? ` — overflowed: ${flow.overflowed.join(", ")}` : "");
+  });
+</script>
+</html>

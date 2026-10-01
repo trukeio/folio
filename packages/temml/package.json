@@ -1,0 +1,18 @@
+{
+  "name": "@truke/folio-temml",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Optional TeX front end (M4); the core sees MathML only",
+  "license": "MIT",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@truke/folio": "workspace:*",
+    "temml": "0.13.5"
+  },
+  "devDependencies": {
+    "linkedom": "^0.18.13"
+  }
+}

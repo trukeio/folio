@@ -1,0 +1,30 @@
+name: Spike - multicol
+
+# M0.3 evidence gathering, not a gate. Manual only: WebKit cannot launch on a
+# Fedora host (its build links ICU 74), so CI is the only place its answers to
+# the spike's questions can be obtained.
+on:
+  workflow_dispatch:
+
+jobs:
+  spike:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps ${{ matrix.engine }}
+      - run: node packages/test/serve.mjs &
+      - run: node packages/test/spike-multicol.mjs --engine ${{ matrix.engine }}
+      - uses: actions/upload-artifact@v7
+        with:
+          name: spike-report-${{ matrix.engine }}
+          path: packages/test/spike/multicol-report.json

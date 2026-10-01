@@ -1,0 +1,17 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>stage 1 fixture</title>
+<style>
+  @layer base { h1:has(+ p) { color: rebeccapurple } }
+  @page { size: 5in 3in; margin: 0.5in; @top-center { content: "Head" } }
+  @page :first { margin-top: 1in }
+  p::after { content: "@page { fake }" }
+</style>
+<style>
+  @font-face { font-family: "Stage One"; src: url("./fonts/STIXTwoText-Regular.otf") format("opentype"); }
+  body { font-family: "Stage One", serif }
+</style>
+<body>
+  <h1>Title</h1>
+  <p>Body text.</p>
+</body>

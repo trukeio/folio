@@ -1,0 +1,54 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>math golden images</title>
+<!--
+  M4.6: the formulas whose rendering we want to be told about when it changes.
+  Positioning is the browser's and the font's, not ours — what a golden image
+  can catch is "it changed", which is the only math-rendering regression this
+  project can own. One box per formula, sized so a diff is legible.
+-->
+<style>
+  @font-face {
+    font-family: "STIX Two Math";
+    src: url("./fonts/STIXTwoMath-Regular.otf") format("opentype");
+  }
+  body { margin: 0; background: #fff; font: 16px/20px serif }
+  .formula {
+    inline-size: 320px; block-size: 120px;
+    display: flex; align-items: center; justify-content: center;
+    background: #fff;
+  }
+  math { font-family: "STIX Two Math"; font-size: 22px }
+</style>
+<body>
+<div class="formula" data-name="fraction-nested"><math display="block"><mfrac><mrow><mi>a</mi><mo>+</mo><mfrac><mi>b</mi><mi>c</mi></mfrac></mrow><mrow><mfrac><mi>d</mi><mrow><mi>e</mi><mo>+</mo><mi>f</mi></mrow></mfrac><mo>−</mo><mn>1</mn></mrow></mfrac></math></div>
+<div class="formula" data-name="fraction-continued"><math display="block"><mfrac><mn>1</mn><mrow><mn>1</mn><mo>+</mo><mfrac><mn>1</mn><mrow><mn>1</mn><mo>+</mo><mfrac><mn>1</mn><mn>2</mn></mfrac></mrow></mfrac></mrow></mfrac></math></div>
+<div class="formula" data-name="sum-limits"><math display="block"><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msup><mi>x</mi><mi>i</mi></msup></math></div>
+<div class="formula" data-name="product-limits"><math display="block"><munderover><mo>∏</mo><mrow><mi>k</mi><mo>=</mo><mn>0</mn></mrow><mi>m</mi></munderover><mrow><mo>(</mo><mrow><mn>1</mn><mo>−</mo><msup><mi>q</mi><mi>k</mi></msup></mrow><mo>)</mo></mrow></math></div>
+<div class="formula" data-name="integral-limits"><math display="block"><msubsup><mo>∫</mo><mn>0</mn><mi>∞</mi></msubsup><msup><mi>e</mi><mrow><mo>−</mo><msup><mi>x</mi><mn>2</mn></msup></mrow></msup><mi>d</mi><mi>x</mi></math></div>
+<div class="formula" data-name="integral-contour"><math display="block"><msub><mo>∮</mo><mi>C</mi></msub><mi>f</mi><mo>(</mo><mi>z</mi><mo>)</mo><mi>d</mi><mi>z</mi></math></div>
+<div class="formula" data-name="fence-matrix-2"><math display="block"><mrow><mo>(</mo><mtable><mtr><mtd><mi>a</mi></mtd><mtd><mi>b</mi></mtd></mtr><mtr><mtd><mi>c</mi></mtd><mtd><mi>d</mi></mtd></mtr></mtable><mo>)</mo></mrow></math></div>
+<div class="formula" data-name="fence-matrix-3"><math display="block"><mrow><mo>[</mo><mtable><mtr><mtd><mn>1</mn></mtd><mtd><mn>0</mn></mtd><mtd><mn>0</mn></mtd></mtr><mtr><mtd><mn>0</mn></mtd><mtd><mn>1</mn></mtd><mtd><mn>0</mn></mtd></mtr><mtr><mtd><mn>0</mn></mtd><mtd><mn>0</mn></mtd><mtd><mn>1</mn></mtd></mtr></mtable><mo>]</mo></mrow></math></div>
+<div class="formula" data-name="fence-braces"><math display="block"><mrow><mo>{</mo><mtable><mtr><mtd><mi>x</mi></mtd></mtr><mtr><mtd><mi>y</mi></mtd></mtr><mtr><mtd><mi>z</mi></mtd></mtr></mtable><mo>}</mo></mrow></math></div>
+<div class="formula" data-name="fence-abs"><math display="block"><mrow><mo>|</mo><mfrac><mrow><mi>a</mi><mo>+</mo><mi>b</mi></mrow><mrow><mi>c</mi><mo>−</mo><mi>d</mi></mrow></mfrac><mo>|</mo></mrow></math></div>
+<div class="formula" data-name="fence-angle"><math display="block"><mrow><mo>⟨</mo><mrow><mi>u</mi><mo>,</mo><mfrac><mi>v</mi><mn>2</mn></mfrac></mrow><mo>⟩</mo></mrow></math></div>
+<div class="formula" data-name="radical-long"><math display="block"><msqrt><mrow><msup><mi>a</mi><mn>2</mn></msup><mo>+</mo><msup><mi>b</mi><mn>2</mn></msup><mo>+</mo><msup><mi>c</mi><mn>2</mn></msup><mo>+</mo><msup><mi>d</mi><mn>2</mn></msup></mrow></msqrt></math></div>
+<div class="formula" data-name="radical-nested"><math display="block"><msqrt><mrow><mn>1</mn><mo>+</mo><msqrt><mrow><mn>1</mn><mo>+</mo><msqrt><mi>x</mi></msqrt></mrow></msqrt></mrow></msqrt></math></div>
+<div class="formula" data-name="radical-index"><math display="block"><mroot><mrow><mi>x</mi><mo>+</mo><mi>y</mi></mrow><mn>3</mn></mroot></math></div>
+<div class="formula" data-name="scripts-sub-sup"><math display="block"><msubsup><mi>x</mi><mrow><mi>i</mi><mo>+</mo><mn>1</mn></mrow><mrow><mn>2</mn><mi>n</mi></mrow></msubsup></math></div>
+<div class="formula" data-name="scripts-nested"><math display="block"><msup><mi>e</mi><msup><mi>e</mi><msup><mi>e</mi><mi>x</mi></msup></msup></msup></math></div>
+<div class="formula" data-name="multiscripts"><math display="block"><mmultiscripts><mi>R</mi><mi>b</mi><mi>a</mi><mprescripts/><mi>d</mi><mi>c</mi></mmultiscripts></math></div>
+<div class="formula" data-name="underover"><math display="block"><munderover><mi>x</mi><mo>̲</mo><mo>¯</mo></munderover></math></div>
+<div class="formula" data-name="accent-hat"><math display="block"><mover accent="true"><mi>x</mi><mo>^</mo></mover></math></div>
+<div class="formula" data-name="accent-vec"><math display="block"><mover accent="true"><mrow><mi>a</mi><mo>+</mo><mi>b</mi></mrow><mo>→</mo></mover></math></div>
+<div class="formula" data-name="accent-tilde"><math display="block"><mover accent="true"><mi>n</mi><mo>~</mo></mover></math></div>
+<div class="formula" data-name="under-brace"><math display="block"><munder><munder><mrow><mi>a</mi><mo>+</mo><mi>b</mi><mo>+</mo><mi>c</mi></mrow><mo>⏟</mo></munder><mi>n</mi></munder></math></div>
+<div class="formula" data-name="over-brace"><math display="block"><mover><mover><mrow><mi>x</mi><mo>+</mo><mi>y</mi></mrow><mo>⏞</mo></mover><mi>k</mi></mover></math></div>
+<div class="formula" data-name="binomial"><math display="block"><mrow><mo>(</mo><mfrac linethickness="0"><mi>n</mi><mi>k</mi></mfrac><mo>)</mo></mrow></math></div>
+<div class="formula" data-name="limit"><math display="block"><munder><mi>lim</mi><mrow><mi>x</mi><mo>→</mo><mn>0</mn></mrow></munder><mfrac><mrow><mi>sin</mi><mi>x</mi></mrow><mi>x</mi></mfrac></math></div>
+<div class="formula" data-name="cases"><math display="block"><mrow><mo>{</mo><mtable columnalign="left"><mtr><mtd><mn>1</mn></mtd><mtd><mi>x</mi><mo>&gt;</mo><mn>0</mn></mtd></mtr><mtr><mtd><mn>0</mn></mtd><mtd><mi>x</mi><mo>≤</mo><mn>0</mn></mtd></mtr></mtable></mrow></math></div>
+<div class="formula" data-name="operator-stretch-arrow"><math display="block"><mover><mo>→</mo><mi>f</mi></mover></math></div>
+<div class="formula" data-name="greek-and-primes"><math display="block"><mrow><msup><mi>φ</mi><mo>′</mo></msup><mo>+</mo><msup><mi>ψ</mi><mo>″</mo></msup><mo>=</mo><mi>Ω</mi></mrow></math></div>
+<div class="formula" data-name="text-in-math"><math display="block"><mrow><mi>x</mi><mo>=</mo><mn>1</mn><mspace width="0.5em"/><mtext>if and only if</mtext><mspace width="0.5em"/><mi>y</mi><mo>=</mo><mn>2</mn></mrow></math></div>
+<div class="formula" data-name="mixed-everything"><math display="block"><mrow><msubsup><mo>∫</mo><mn>0</mn><mn>1</mn></msubsup><msqrt><mfrac><mrow><mn>1</mn><mo>+</mo><msup><mi>t</mi><mn>2</mn></msup></mrow><mrow><mn>1</mn><mo>−</mo><mi>t</mi></mrow></mfrac></msqrt><mi>d</mi><mi>t</mi></mrow></math></div>
+</body>

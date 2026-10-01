@@ -1,0 +1,22 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`the Paged.js baseline > says which specs lose content, and which merely repeat it 1`] = `
+{
+  "lost": [
+    "specs/breaks/in-top-level/in-top-level.html",
+    "specs/tables/copy-column-widths/copy-column-widths.html",
+  ],
+  "repeated": [
+    "specs/breaks/empty-page-detection/empty-page-detection.html",
+    "specs/breaks/fractional-pixels/fractional-pixels.html",
+    "specs/breaks/table/avoid-break-rowspan.html",
+    "specs/generate-content/content-none/content-none.html",
+    "specs/issues/duplicate-headers/duplicate-headers.html",
+    "specs/position-fixed/position-fixed.html",
+    "specs/splits/tables/long-table.html",
+    "specs/tables/column-overflow/column-overflow.html",
+    "specs/tables/nested/nested.html",
+    "specs/tables/rebuild-all-tds/rebuild-all-tds.html",
+  ],
+}
+`;

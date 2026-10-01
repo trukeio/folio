@@ -1,0 +1,23 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>candidate enumeration fixture</title>
+<style>
+  @font-face { font-family: "Fixture"; src: url("./fonts/STIXTwoText-Regular.otf") format("opentype"); }
+  body { margin: 0; font: 16px/24px "Fixture", serif; width: 400px }
+  section > * { margin: 0 }
+  .avoid { break-inside: avoid }
+  .forced { break-before: page }
+  .keep-with-next { break-after: avoid }
+</style>
+<body>
+<section id="doc">
+  <h2 id="heading">A heading</h2>
+  <p id="intro">Intro paragraph that follows the heading directly.</p>
+  <div class="avoid" id="figure">
+    <p id="caption">A figure caption inside a block that must not be split.</p>
+  </div>
+  <p id="long">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore.</p>
+  <h3 id="forced" class="forced">Forced onto a new page</h3>
+  <p id="tail">Tail paragraph.</p>
+</section>
+</body>

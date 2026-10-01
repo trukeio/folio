@@ -1,0 +1,18 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>page template fixture</title>
+<style>
+  @page {
+    size: 400px 300px;
+    margin: 30px 20px;
+    @top-center { content: "The Title"; font-style: italic }
+    @bottom-right { content: counter(page) }
+    @bottom-left { content: "page " counter(page) " of " counter(pages) }
+    @top-left-corner { content: "x" }
+  }
+  body { margin: 0; font: 16px/24px serif }
+  p { margin: 0 0 12px }
+</style>
+<body>
+<article id="src"><p>One paragraph.</p><p style="break-before:page">Two.</p><p style="break-before:page">Three.</p></article>
+</body>

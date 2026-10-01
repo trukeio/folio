@@ -1,0 +1,14 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>cross-reference fixture</title>
+<style>
+  @page { size: 400px 200px; margin: 20px }
+  body { margin: 0; font: 16px/20px serif }
+  p, h2 { margin: 0 }
+  h2 { font-size: 16px }
+  a.ref::after { content: " (page " target-counter(attr(href), page) ")" }
+  a.title::after { content: " — " target-text(attr(href)) }
+</style>
+<body>
+<article id="src"><p>See <a class="ref" href="#later">the later section</a> and <a class="title" href="#later">its title</a>.</p><p>alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango</p><h2 id="later">The Later Section</h2><p>Content of the later section.</p></article>
+</body>

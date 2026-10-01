@@ -1,0 +1,20 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>MATH table probe</title>
+<style>
+  @font-face {
+    font-family: "STIX Two Math";
+    src: url("./fonts/STIXTwoMath-Regular.otf") format("opentype");
+  }
+  /* The negative control: a font that certainly loads and certainly has no
+     MATH table. local() was wrong - on a machine without those families the
+     request is unresolvable, the engine falls back to something math-capable,
+     and the control silently inverts (CI, M0.4). STIX Two Text is the text
+     companion of the math face: 13 tables, no MATH. */
+  @font-face {
+    font-family: "No Math Here";
+    src: url("./fonts/STIXTwoText-Regular.otf") format("opentype");
+  }
+  math { font-size: 24px; }
+</style>
+<body></body>

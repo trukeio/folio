@@ -1,0 +1,70 @@
+name: WPT native support
+
+# What do the target browsers support natively? That is the evidence base for
+# the deletion conditions of doc/plan.md §8: a polyfill module may be deleted
+# when every target browser passes the tests it stands in for. The Folio run
+# is the other half of that comparison: the paginated tests, with the engine
+# loaded (M6). The deletion job reads the native runs against every module's
+# tests and fails when one may go.
+#
+# Manual, because it fetches from the WPT repo at the pinned commit and its
+# answers change on the browsers' schedule, not on ours.
+on:
+  workflow_dispatch:
+
+jobs:
+  wpt:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps ${{ matrix.engine }}
+      - run: node packages/test/wpt.mjs --engine ${{ matrix.engine }}
+      - run: node packages/test/wpt.mjs --folio --engine ${{ matrix.engine }}
+      # The paginated tests printed by the browser itself: the native evidence
+      # for the deletion conditions' `-print` tests. Chromium alone can print
+      # to a file from Playwright, and pdftoppm rasterises what it prints.
+      - if: matrix.engine == 'chromium'
+        run: sudo apt-get install -y poppler-utils
+      - if: matrix.engine == 'chromium'
+        run: node packages/test/wpt.mjs --native-print
+      - uses: actions/upload-artifact@v7
+        with:
+          name: wpt-results-${{ matrix.engine }}
+          path: |
+            packages/test/wpt-results.json
+            packages/test/wpt-results-folio.json
+            packages/test/wpt-results-native-print.json
+          if-no-files-found: ignore
+
+  # plan.md §8: may a polyfill module go? Fails when one may, so that someone
+  # deletes it (`packages/test/deletion.mjs`).
+  deletion:
+    needs: wpt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@v7
+        with:
+          path: wpt-evidence
+      - run: node packages/test/deletion.mjs --results wpt-evidence --json deletion-report.json
+      - if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: deletion-report
+          path: deletion-report.json

@@ -1,0 +1,13 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>named pages fixture</title>
+<style>
+  @page { size: 400px 300px; margin: 20px; @top-center { content: "body" } }
+  @page chapter { size: 400px 400px; margin: 20px; @top-center { content: "chapter" } }
+  body { margin: 0; font: 16px/24px serif }
+  p { margin: 0 }
+  .chapter { page: chapter }
+</style>
+<body>
+<article id="src"><p>Front matter.</p><section class="chapter"><p>Chapter one opens here.</p></section><p>Back matter.</p></article>
+</body>

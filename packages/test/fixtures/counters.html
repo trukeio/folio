@@ -1,0 +1,73 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>counters across pages</title>
+<!--
+  M2.3's fixture. Three things that only go wrong once a document has more
+  than one page:
+
+    - a counter reset on a `<section>` that spans a break, which restarted on
+      every page before `counters.ts` carried its value;
+    - `counter(chapter)` in a margin box, which the browser cannot resolve for
+      us because a page's margin boxes are not in the page's element tree;
+    - `target-counter(#id, chapter)`, which nothing can read off the rendered
+      page: a pseudo-element's text is not in the DOM.
+
+  The sections are long enough that the second one certainly breaks.
+-->
+<style>
+  @page {
+    size: 300px 260px;
+    margin: 10px;
+    @bottom-left { content: "ch " counter(chapter) }
+    @bottom-right { content: counter(page) }
+  }
+  body { margin: 0; font: 12px/16px serif; counter-reset: chapter }
+  section { counter-reset: para }
+  h2 { counter-increment: chapter; font-size: 12px; margin: 0 0 4px }
+  h2::before { content: counter(chapter) ". " }
+  p { counter-increment: para; margin: 0 0 6px }
+  p::before { content: counter(chapter) "." counter(para) " " }
+  a.ref::after { content: " (ch " target-counter(attr(href), chapter) ")" }
+  table { border-collapse: collapse; margin: 0 0 6px }
+  th, td { border: 1px solid #999; padding: 1px 3px }
+  tbody tr { counter-increment: row }
+  td.n::before { content: counter(row) }
+</style>
+<body>
+<article id="src">
+  <section id="s1">
+    <h2 id="h1">First</h2>
+    <p>Alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike.</p>
+    <p>November oscar papa quebec romeo sierra tango uniform victor whiskey xray.</p>
+  </section>
+
+  <section id="s2">
+    <h2 id="h2">Second</h2>
+    <p>Anvil bramble cinder dovetail ember furlong gantry harrow ingot jetty keel.</p>
+    <p>Lantern mortise nogging oakum pallet quarry rafter sarking tenon upright.</p>
+    <p>Verge wainscot xystus yardarm zenith anvil bramble cinder dovetail ember.</p>
+    <p>Furlong gantry harrow ingot jetty keel lantern mortise nogging oakum pallet.</p>
+    <p>Quarry rafter sarking tenon upright verge wainscot xystus yardarm zenith.</p>
+    <p>Anvil bramble cinder dovetail ember furlong gantry harrow ingot jetty keel.</p>
+    <p>Lantern mortise nogging oakum pallet quarry rafter sarking tenon upright.</p>
+    <p>Verge wainscot xystus yardarm zenith anvil bramble cinder dovetail ember.</p>
+  </section>
+
+  <section id="s3">
+    <h2 id="h3">Third</h2>
+    <p>See <a class="ref" href="#h2">the second chapter</a> and carry on.</p>
+    <table>
+      <thead><tr><th>n</th><th>word</th></tr></thead>
+      <tbody>
+        <tr><td class="n"></td><td>alpha</td></tr>
+        <tr><td class="n"></td><td>bravo</td></tr>
+        <tr><td class="n"></td><td>charlie</td></tr>
+        <tr><td class="n"></td><td>delta</td></tr>
+        <tr><td class="n"></td><td>echo</td></tr>
+        <tr><td class="n"></td><td>foxtrot</td></tr>
+        <tr><td class="n"></td><td>golf</td></tr>
+        <tr><td class="n"></td><td>hotel</td></tr>
+      </tbody>
+    </table>
+  </section>
+</article>

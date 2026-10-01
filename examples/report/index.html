@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>A technical report</title>
+
+<!--
+  Text, mathematics and tables in one document, set in a sans family.
+
+  The text is IBM Plex Sans and the formulas Noto Sans Math, so the two match:
+  a serif math font beside sans text is the usual look of a LaTeX document and
+  not what this report wants. Both are served from examples/fonts/.
+
+  What it shows:
+    - numbered display equations, referred to by number and by page;
+    - a table with formulas in its cells;
+    - a long table split across pages, its header repeated on each;
+    - tables numbered by an ordinary CSS counter and referred to by
+      `target-counter()`, exactly as equations and pages are;
+    - a footnote, a running head and "page n of N".
+
+  The measurements in Table 2 are generated below from the model plus a fixed
+  pattern of small deviations, and the fitted time constant in Table 3 is
+  computed from them in the page — so the prose, the tables and the formulas
+  cannot disagree with each other.
+-->
+
+<style>
+  @font-face {
+    font-family: "IBM Plex Sans";
+    src: url("../fonts/IBMPlexSans-400-normal.woff2") format("woff2");
+    font-weight: 400; font-style: normal;
+  }
+  @font-face {
+    font-family: "IBM Plex Sans";
+    src: url("../fonts/IBMPlexSans-400-italic.woff2") format("woff2");
+    font-weight: 400; font-style: italic;
+  }
+  @font-face {
+    font-family: "IBM Plex Sans";
+    src: url("../fonts/IBMPlexSans-600-normal.woff2") format("woff2");
+    font-weight: 600; font-style: normal;
+  }
+  @font-face {
+    font-family: "IBM Plex Sans";
+    src: url("../fonts/IBMPlexSans-600-italic.woff2") format("woff2");
+    font-weight: 600; font-style: italic;
+  }
+  /* A math font must have an OpenType MATH table (doc/math.md §3); this one
+     does, and `mathFont` below makes the engine check it before measuring. */
+  @font-face {
+    font-family: "Noto Sans Math";
+    src: url("../fonts/NotoSansMath-Regular.woff2") format("woff2");
+  }
+
+  @page {
+    size: A4;
+    margin: 17mm 15mm 19mm;
+    @top-left {
+      content: string(section);
+      font: 400 7.5pt/1 "IBM Plex Sans", sans-serif; color: #666;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    @top-right {
+      content: "Technical note 7";
+      font: 600 7.5pt/1 "IBM Plex Sans", sans-serif; color: #666;
+    }
+    @bottom-right {
+      content: "Page " counter(page) " of " counter(pages);
+      font: 400 7.5pt/1 "IBM Plex Sans", sans-serif; color: #666;
+    }
+  }
+  @page :first {
+    @top-left { content: none }
+    @top-right { content: none }
+  }
+
+  body {
+    font: 400 9.5pt/1.5 "IBM Plex Sans", sans-serif;
+    margin: 0; color: #1c1c1c;
+    counter-reset: table;
+  }
+  /* A step smaller than the text: Noto Sans Math's x-height is larger than
+     Plex's, and at the same size the formulas look set in a bigger font. */
+  math { font-family: "Noto Sans Math"; font-size: 0.95em }
+
+  .title { font-size: 18pt; font-weight: 600; line-height: 1.15; margin: 0 0 0.3rem }
+  .subtitle { font-size: 10pt; color: #555; margin: 0 0 1.4rem }
+  h2 {
+    font-size: 11pt; font-weight: 600; margin: 1.3rem 0 0.5rem;
+    break-after: avoid;
+    string-set: section content();   /* what the running head reads */
+  }
+  p { margin: 0 0 0.55rem; hyphens: auto; orphans: 2; widows: 2 }
+
+  /* Equations: numbered by the engine, one sequence for the document. */
+  math[display="block"] { math-number: yes; margin: 0.6rem 0 }
+
+  /* Tables: an ordinary counter, which `target-counter()` can read. */
+  table {
+    counter-increment: table;
+    border-collapse: collapse; inline-size: 100%;
+    margin: 0.8rem 0 1rem; font-size: 8.5pt; line-height: 1.35;
+  }
+  caption {
+    caption-side: top; text-align: start;
+    font-weight: 400; color: #333; margin-block-end: 0.35rem;
+  }
+  caption::before { content: "Table " counter(table) ". "; font-weight: 600 }
+  th, td { padding: 0.2rem 0.5rem; text-align: end; vertical-align: baseline }
+  th:first-child, td:first-child { text-align: start; padding-inline-start: 0 }
+  th:last-child, td:last-child { padding-inline-end: 0 }
+  thead th { font-weight: 600; border-block-end: 0.75pt solid #1c1c1c }
+  #readings tbody tr:nth-child(5n) td { border-block-end: 0.5pt solid #ccc }
+  tfoot td { border-block-start: 0.75pt solid #1c1c1c; font-weight: 600 }
+  /* A small table stays on one page; the long one splits, with its header. */
+  table.keep { break-inside: avoid }
+
+  /* References, resolved after pagination. */
+  a.ref { color: inherit; text-decoration: none }
+  a.eq::after { content: "(" target-counter(attr(href), equation) ")" }
+  a.tab::after { content: "Table " target-counter(attr(href), table) }
+  a.page::after { content: "page " target-counter(attr(href), page) }
+
+  .note { float: footnote; font-size: 7.5pt }
+
+  @media screen {
+    body { background: #e9ebef }
+    .pagedjs_page { background: #fff; box-shadow: 0 1px 6px #0003; margin: 1.5rem auto }
+    .pagedjs_pages { padding: 0.5rem 0 }
+  }
+</style>
+
+<article id="report">
+  <h1 class="title">Cooling a sealed enclosure</h1>
+  <p class="subtitle">Technical note 7 · a lumped model, sixty-one readings, and how well
+  one explains the other</p>
+
+  <p>A sealed aluminium enclosure was heated to a uniform temperature and left
+  to cool in still air. This note compares its temperature with the simplest
+  model that could describe it, Newton’s law of cooling
+  <a class="ref eq" href="#newton"></a>, whose one parameter, the time
+  constant <math><mi>τ</mi></math>, can be predicted from the enclosure’s
+  mass and surface <a class="ref eq" href="#tau"></a> or fitted to the
+  readings <a class="ref eq" href="#fit"></a>. The readings are in
+  <a class="ref tab" href="#readings"></a>, on <a class="ref page" href="#readings"></a>;
+  the two values of <math><mi>τ</mi></math> are compared in
+  <a class="ref tab" href="#summary"></a>.</p>
+
+  <h2>1. Model</h2>
+  <p>If the enclosure’s temperature <math><mi>T</mi></math> is uniform — its
+  walls conduct heat far faster than air carries it away — the rate at which it
+  cools is proportional to its excess over the ambient temperature
+  <math><msub><mi>T</mi><mi>a</mi></msub></math>:</p>
+
+  <math display="block" id="newton">
+    <mfrac><mrow><mi>d</mi><mi>T</mi></mrow><mrow><mi>d</mi><mi>t</mi></mrow></mfrac>
+    <mo>=</mo><mo>−</mo>
+    <mfrac><mrow><mi>T</mi><mo>−</mo><msub><mi>T</mi><mi>a</mi></msub></mrow><mi>τ</mi></mfrac>
+  </math>
+
+  <p>Starting from <math><msub><mi>T</mi><mn>0</mn></msub></math> at
+  <math><mi>t</mi><mo>=</mo><mn>0</mn></math>, its solution is an exponential
+  approach to the ambient temperature:</p>
+
+  <math display="block" id="solution">
+    <mi>T</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo>
+    <msub><mi>T</mi><mi>a</mi></msub><mo>+</mo>
+    <mo stretchy="false">(</mo><msub><mi>T</mi><mn>0</mn></msub><mo>−</mo><msub><mi>T</mi><mi>a</mi></msub><mo stretchy="false">)</mo>
+    <msup><mi>e</mi><mrow><mo>−</mo><mi>t</mi><mo>/</mo><mi>τ</mi></mrow></msup>
+  </math>
+
+  <p>An energy balance gives the time constant from the enclosure itself: the
+  heat it stores, <math><mi>m</mi><mi>c</mi></math>, over the rate at which its
+  surface <math><mi>A</mi></math> gives heat to the air through the film
+  coefficient <math><mi>h</mi></math>,<span class="note">The film coefficient
+  for still air over a vertical plate is between about 5 and
+  25 W m<sup>−2</sup> K<sup>−1</sup>; 12 is the value this enclosure’s
+  datasheet quotes, and the one used here.</span></p>
+
+  <math display="block" id="tau">
+    <mi>τ</mi><mo>=</mo><mfrac><mrow><mi>m</mi><mi>c</mi></mrow><mrow><mi>h</mi><mi>A</mi></mrow></mfrac>
+  </math>
+
+  <p>with the values in <a class="ref tab" href="#parameters"></a>.</p>
+
+  <table class="keep" id="parameters">
+    <caption>The enclosure and the predicted time constant.</caption>
+    <thead>
+      <tr><th>Quantity</th><th>Symbol</th><th>Value</th><th>Unit</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Mass</td><td><math><mi>m</mi></math></td><td>1.80</td><td>kg</td></tr>
+      <tr><td>Specific heat, aluminium</td><td><math><mi>c</mi></math></td><td>900</td><td>J kg<sup>−1</sup> K<sup>−1</sup></td></tr>
+      <tr><td>Film coefficient</td><td><math><mi>h</mi></math></td><td>12.0</td><td>W m<sup>−2</sup> K<sup>−1</sup></td></tr>
+      <tr><td>Surface area</td><td><math><mi>A</mi></math></td><td>0.160</td><td>m<sup>2</sup></td></tr>
+      <tr><td>Ambient temperature</td><td><math><msub><mi>T</mi><mi>a</mi></msub></math></td><td>22.0</td><td>°C</td></tr>
+      <tr><td>Initial temperature</td><td><math><msub><mi>T</mi><mn>0</mn></msub></math></td><td>71.5</td><td>°C</td></tr>
+      <tr><td>Time constant, from <a class="ref eq" href="#tau"></a></td><td><math><mi>m</mi><mi>c</mi><mo>/</mo><mo stretchy="false">(</mo><mi>h</mi><mi>A</mi><mo stretchy="false">)</mo></math></td><td id="tau-predicted"></td><td>s</td></tr>
+    </tbody>
+  </table>
+
+  <p>The model holds while the Biot number
+  <math><mi>Bi</mi><mo>=</mo><mi>h</mi><mi>L</mi><mo>/</mo><mi>k</mi></math>
+  is small — while the walls are thin or conductive enough that their inside
+  and outside stay at one temperature. With walls 3 mm thick and aluminium’s
+  conductivity it is about
+  <math><mn>2</mn><mo>×</mo><msup><mn>10</mn><mrow><mo>−</mo><mn>4</mn></mrow></msup></math>,
+  far below the usual limit of 0.1.</p>
+
+  <h2>2. Readings</h2>
+  <p>The temperature was read every minute for an hour by a thermocouple
+  bonded to the middle of the largest face. <a class="ref tab" href="#readings"></a>
+  gives each reading beside the model’s value from
+  <a class="ref eq" href="#solution"></a> with the predicted
+  <math><mi>τ</mi></math>, and the residual between them. It runs over more
+  than one page, and its header comes with it.</p>
+
+  <table id="readings">
+    <caption>Readings, the model with the predicted time constant, and the
+    residual <math><msub><mi>T</mi><mtext>read</mtext></msub><mo>−</mo><msub><mi>T</mi><mtext>model</mtext></msub></math>.</caption>
+    <thead>
+      <tr><th><math><mi>t</mi></math> (s)</th><th>Read (°C)</th><th>Model (°C)</th><th>Residual (K)</th></tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
+
+  <h2>3. Fitting the time constant</h2>
+  <p>Taking logarithms turns <a class="ref eq" href="#solution"></a> into a
+  straight line through the origin, whose slope is
+  <math><mo>−</mo><mn>1</mn><mo>/</mo><mi>τ</mi></math>:</p>
+
+  <math display="block" id="fit">
+    <mi>ln</mi><mo>&#x2061;</mo><mfrac>
+      <mrow><mi>T</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>−</mo><msub><mi>T</mi><mi>a</mi></msub></mrow>
+      <mrow><msub><mi>T</mi><mn>0</mn></msub><mo>−</mo><msub><mi>T</mi><mi>a</mi></msub></mrow>
+    </mfrac>
+    <mo>=</mo><mo>−</mo><mfrac><mi>t</mi><mi>τ</mi></mfrac>
+    <mspace width="1em"/><mo>⇒</mo><mspace width="1em"/>
+    <msub><mover accent="true"><mi>τ</mi><mo>ˆ</mo></mover><mtext>fit</mtext></msub>
+    <mo>=</mo><mo>−</mo>
+    <mfrac>
+      <mrow><munder><mo>∑</mo><mi>i</mi></munder><msubsup><mi>t</mi><mi>i</mi><mn>2</mn></msubsup></mrow>
+      <mrow><munder><mo>∑</mo><mi>i</mi></munder><msub><mi>t</mi><mi>i</mi></msub><msub><mi>y</mi><mi>i</mi></msub></mrow>
+    </mfrac>
+  </math>
+
+  <p>where <math><msub><mi>y</mi><mi>i</mi></msub></math> is the left-hand side
+  at the <math><mi>i</mi></math>th reading. Fitted this way the time constant
+  is <span id="tau-fit-text"></span> s, <span id="tau-diff-text"></span> the
+  prediction; the model with the fitted value leaves a root-mean-square
+  residual of <span id="rms-fit-text"></span> K, against
+  <span id="rms-pred-text"></span> K with the predicted one.</p>
+
+  <table class="keep" id="summary">
+    <caption>The time constant, predicted and fitted.</caption>
+    <thead>
+      <tr><th>Source</th><th><math><mi>τ</mi></math> (s)</th><th>RMS residual (K)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Predicted, from <a class="ref eq" href="#tau"></a></td><td id="s-pred"></td><td id="s-pred-rms"></td></tr>
+      <tr><td>Fitted, from <a class="ref eq" href="#fit"></a></td><td id="s-fit"></td><td id="s-fit-rms"></td></tr>
+    </tbody>
+    <tfoot>
+      <tr><td>Difference</td><td id="s-diff"></td><td></td></tr>
+    </tfoot>
+  </table>
+
+  <h2>4. Conclusion</h2>
+  <p>A single exponential with a time constant computed from the datasheet
+  describes an hour of cooling to within a few tenths of a kelvin, and fitting
+  that one number moves it by only a few percent. The lumped model
+  <a class="ref eq" href="#newton"></a> is adequate for this enclosure; the
+  readings behind that statement are in <a class="ref tab" href="#readings"></a>,
+  starting on <a class="ref page" href="#readings"></a>.</p>
+</article>
+
+<script type="module">
+  import { Previewer } from "/dist/folio.mjs";
+
+  // ---- The data -----------------------------------------------------------
+  // The model of equation (2), and readings that differ from it by a fixed,
+  // repeatable pattern — the same numbers every time the page loads.
+  const m = 1.8, c = 900, h = 12, A = 0.16, Ta = 22.0, T0 = 71.5;
+  const tauPred = (m * c) / (h * A);
+  const model = (t, tau) => Ta + (T0 - Ta) * Math.exp(-t / tau);
+  const times = Array.from({ length: 61 }, (_, i) => i * 60);
+  const read = times.map((t, i) =>
+    Math.round((model(t, tauPred * 1.035) + 0.12 * Math.sin(1.3 * i) + 0.06 * Math.cos(2.9 * i)) * 10) / 10);
+
+  // Equation (4): least squares through the origin on the log-linearized data.
+  const ys = read.map((T) => Math.log((T - Ta) / (T0 - Ta)));
+  const tauFit = -times.reduce((s, t) => s + t * t, 0) / times.reduce((s, t, i) => s + t * ys[i], 0);
+  const rms = (tau) =>
+    Math.sqrt(read.reduce((s, T, i) => s + (T - model(times[i], tau)) ** 2, 0) / read.length);
+
+  // Real minus signs, not hyphens: a column of residuals should line up.
+  const num = (x, digits) => x.toFixed(digits).replace("-", "−");
+  const set = (id, text) => { document.getElementById(id).textContent = text; };
+
+  document.getElementById("rows").innerHTML = times
+    .map((t, i) => {
+      const mod = model(t, tauPred);
+      return `<tr><td>${t}</td><td>${num(read[i], 1)}</td><td>${num(mod, 2)}</td>` +
+        `<td>${num(read[i] - mod, 2)}</td></tr>`;
+    })
+    .join("");
+
+  const diff = (tauFit - tauPred) / tauPred;
+  set("tau-predicted", num(tauPred, 0));
+  set("tau-fit-text", num(tauFit, 0));
+  set("tau-diff-text", `${num(Math.abs(diff) * 100, 1)}% ${diff > 0 ? "longer than" : "shorter than"}`);
+  set("rms-fit-text", num(rms(tauFit), 2));
+  set("rms-pred-text", num(rms(tauPred), 2));
+  set("s-pred", num(tauPred, 0));
+  set("s-pred-rms", num(rms(tauPred), 2));
+  set("s-fit", num(tauFit, 0));
+  set("s-fit-rms", num(rms(tauFit), 2));
+  set("s-diff", `${diff > 0 ? "+" : "−"}${num(Math.abs(tauFit - tauPred), 0)} (${num(Math.abs(diff) * 100, 1)}%)`);
+
+  // ---- The pages ----------------------------------------------------------
+  // Fonts first: the text is measured in Plex and the formulas in Noto Sans
+  // Math, and `mathFont` makes the engine prove the latter has a MATH table.
+  await document.fonts.ready;
+  const flow = await new Previewer({ mathFont: "Noto Sans Math" }).preview("#report");
+  console.log(`${flow.total} pages`, flow.overflowed);
+  window.flow = flow; // `pnpm pdf … --wait window.flow` prints once this is set
+</script>
+</html>

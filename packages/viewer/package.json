@@ -1,0 +1,14 @@
+{
+  "name": "@truke/folio-viewer",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Viewer: spreads, zoom, virtualized pages",
+  "license": "MIT",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@truke/folio": "workspace:*"
+  }
+}

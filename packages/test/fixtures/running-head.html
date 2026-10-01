@@ -1,0 +1,27 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>running head fixture</title>
+<!--
+  Long enough that `chapter` has to *carry* across pages that assign nothing,
+  which is the whole point of a named string: a chapter that runs over two
+  pages proves the value persists, and a two-page document proves nothing.
+  It grew when the running element stopped stealing a head's worth of room
+  from every page (`running-head.spec.ts`, "a page is measured without the
+  running element it will not carry") and the same text fitted in two.
+-->
+<style>
+  @page {
+    size: 400px 200px;
+    margin: 30px 20px;
+    @top-left { content: string(chapter) }
+    @top-right { content: string(chapter, first-except) }
+    @bottom-center { content: element(folio) }
+  }
+  body { margin: 0; font: 16px/20px serif }
+  h2, p { margin: 0 }
+  h2 { string-set: chapter content(); font-size: 16px }
+  #folio { position: running(folio); color: rebeccapurple }
+</style>
+<body>
+<article id="src"><div id="folio">The Book</div><h2>Chapter One</h2><p>Alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango uniform victor whiskey xray yankee zulu again alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango uniform victor whiskey.</p><h2>Chapter Two</h2><p>Uniform victor whiskey xray yankee zulu alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango once more alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango uniform victor.</p><p>Bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango uniform victor whiskey xray yankee zulu and again bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango uniform victor whiskey xray yankee.</p><p>Charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango uniform victor whiskey xray yankee zulu once again charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango uniform victor whiskey xray.</p></article>
+</body>

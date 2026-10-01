@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Mathematics in LaTeX</title>
+
+<!--
+  The mathematics example (../math/), written in LaTeX instead of MathML.
+
+  Inline formulas are \( … \), displays \[ … \], and numbered displays
+  \begin{equation} … \end{equation}, as for MathJax. \label names an
+  equation and \eqref refers to it. The TeX front end (dist/folio-tex.js,
+  doc/tex.md) turns them into MathML before the engine measures anything, and
+  the engine does the rest: the numbers, the references by number and by
+  page, the equation too wide for the line, the formula in the running head.
+
+  The two examples must paginate alike, page for page and number for number;
+  packages/test/browser/tex.spec.ts holds them to that.
+
+  A literal "<" inside a formula must be written &lt; or \lt, because the
+  HTML parser reads the page before the TeX front end does.
+-->
+
+<style>
+  /* A math font is not optional: quality comes from its MATH table, and the
+     engine ships none (doc/math.md §3). This is the STIX Two Math the tests
+     use, served from the repository; any OpenType math font works, e.g.
+     Latin Modern Math. `mathFont` below makes the engine check it loaded. */
+  @font-face {
+    font-family: "STIX Two Math";
+    src: url("/packages/test/fixtures/fonts/STIXTwoMath-Regular.otf") format("opentype");
+  }
+
+  @page {
+    size: A4;
+    margin: 18mm 16mm 20mm;
+    @top-center    { content: string(chapter); font: italic 9pt/1 Georgia, serif; color: #555 }
+    @bottom-center { content: counter(page); font: 9pt/1 Georgia, serif; color: #555 }
+  }
+  @page :first { @top-center { content: none } }
+
+  /* The counter is created at the root, so every chapter on every page is in
+     its scope; an increment with no reset above it starts a new counter on
+     each page instead. */
+  body { font: 11pt/1.5 Georgia, serif; margin: 0; counter-reset: chapter }
+  math { font-family: "STIX Two Math"; font-size: 1.05em }
+
+  .title { font-size: 20pt; line-height: 1.2; margin: 0 0 1rem }
+  .chapter { break-before: page; counter-increment: chapter; counter-reset: equation }
+  h2 {
+    font-size: 14pt; margin: 0 0 0.8rem; break-after: avoid;
+    /* content(element): the heading is cloned into the running head, formula
+       and all. `content()` would give its text, which for math is garbage. */
+    string-set: chapter content(element);
+  }
+  p { margin: 0 0 0.6rem; text-align: justify; hyphens: auto; orphans: 2; widows: 2 }
+
+  /* Which equations are numbered is TeX's to say now: \begin{equation} is,
+     \[ … \] is not, as in AMS LaTeX. The engine still counts `equation`,
+     restarting where the stylesheet resets it, on each chapter here.
+
+     \eqref{…} becomes <a class="tex-eqref" href="#…">, which prints "(n)" by
+     default. This restyles it to name the chapter too — the TeX front end's
+     own rule comes first, so the author's wins — and the page reference is
+     plain HTML beside it: the two mix freely. */
+  a.tex-eqref, a.eqpage { color: inherit; text-decoration: none }
+  a.tex-eqref::after {
+    content: "(" target-counter(attr(href), equation) ") in chapter "
+             target-counter(attr(href), chapter);
+  }
+  a.eqpage::after { content: " on page " target-counter(attr(href), page) }
+
+  .note { float: footnote }
+
+  @media screen {
+    body { background: #eceef2 }
+    .pagedjs_page { background: #fff; box-shadow: 0 1px 6px #0003; margin: 1.5rem auto }
+    .pagedjs_pages { padding: 0.5rem 0 }
+  }
+</style>
+
+<article id="book">
+  <h1 class="title">A Few Formulas</h1>
+  <p>Equations are numbered within their chapter. The identity
+  \eqref{euler} is the one everybody
+  remembers; the series for the exponential, \eqref{exp}<a
+  class="eqpage" href="#exp"></a>, is where it comes from. The long equation
+  \eqref{long} is there to be too wide for the page, and
+  the matrix in \eqref{rotation} to show a fence stretching
+  to fit what it holds.</p>
+
+  <section class="chapter">
+    <h2>The identity \(e^{i\pi} + 1 = 0\)</h2>
+    <p>Inline formulas sit in the line like words: for any real
+    \(\theta\), the point
+    \(e^{i\theta}\)
+    lies on the unit circle, at angle \(\theta\) from the real
+    axis. Written out,</p>
+
+    \begin{equation}
+      e^{i\theta} = \cos\theta + i \sin\theta \label{euler-general}
+    \end{equation}
+
+    <p>and at \(\theta = \pi\) the sine vanishes
+    and the cosine is \(-1\), which is</p>
+
+    \begin{equation}
+      e^{i\pi} + 1 = 0 \label{euler}
+    \end{equation}
+
+    <p>Its title rides in the running head of every page of this chapter as a
+    formula, set a step smaller by <code>math-depth</code>.<span
+    class="note">A footnote can hold a formula too:
+    \(\int_0^\pi \sin x \, dx = 2\).
+    The browser sets it at the note's size.</span></p>
+  </section>
+
+  <section class="chapter">
+    <h2>Series</h2>
+    <p>The exponential is the sum of its own Taylor series, which converges for
+    every complex \(z\):</p>
+
+    \begin{equation}
+      e^z = \sum_{n=0}^{\infty} \frac{z^n}{n!} \label{exp}
+    \end{equation}
+
+    <p>Expanding a product term by term produces an equation wider than the
+    page. Browsers do not break display math — MathML Core makes it
+    <code>nowrap</code> — so the engine does, at the operators, preferring the
+    relation, and aligns the continuation lines after it:</p>
+
+    \begin{equation}
+      (a+b)^5 = a^5 + 5a^4b + 10a^3b^2 + 10a^2b^3 + 5ab^4 + b^5
+        = \sum_{k=0}^{5} \binom{5}{k} a^{5-k} b^k \label{long}
+    \end{equation}
+
+    <p>Not every display needs a number; this one is written with
+    <code>\[ … \]</code>, and the numbering does not notice it was there:</p>
+
+    \[ \frac{1}{1-x} = 1 + x + x^2 + \cdots \]
+  </section>
+
+  <section class="chapter">
+    <h2>Linear algebra</h2>
+    <p>Numbering starts again with the chapter, because the stylesheet says
+    <code>counter-reset: equation</code> on it. A rotation by
+    \(\theta\) in the plane is</p>
+
+    \begin{equation}
+      R(\theta) = \begin{bmatrix} \cos\theta & -\sin\theta \\ \sin\theta & \cos\theta \end{bmatrix}
+      \label{rotation}
+    \end{equation}
+
+    <p>and its determinant is one:</p>
+
+    \begin{equation}
+      \det R(\theta) = \cos^2\theta + \sin^2\theta = 1 \label{det}
+    \end{equation}
+
+    <p>Composing two rotations adds their angles, which is
+    equation \eqref{euler-general} again, read as a statement about
+    matrices: \(R(\alpha) R(\beta) = R(\alpha + \beta)\).</p>
+  </section>
+</article>
+
+<!--
+  Two script tags and a configuration object, as with MathJax. The TeX script
+  may come before or after the polyfill; before is the order that works
+  whatever else the page does, so that is the one shown. `PagedConfig` is the
+  polyfill's, `FolioTeX` the TeX front end's; the defaults written out here
+  are what an empty object gives.
+-->
+<script>
+  window.FolioTeX = {
+    inline: [["\\(", "\\)"]],
+    display: [["\\[", "\\]"]],
+    tags: "ams",
+  };
+  window.PagedConfig = {
+    content: "#book",
+    settings: { mathFont: "STIX Two Math" },
+    after: (flow) => console.log(`${flow.total} pages`, flow.overflowed),
+  };
+</script>
+<script src="/dist/folio-tex.js"></script>
+<script src="/dist/folio.polyfill.js"></script>
+</html>

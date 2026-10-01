@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>The drop-in</title>
+
+<!--
+  The whole of it: an `@page` rule, ordinary HTML, and one script tag.
+
+  Nothing on this page calls the engine. The script paginates the document it
+  is loaded into as soon as the DOM is ready, replaces the body with the pages
+  and leaves the original content in a <template>. That is the same contract
+  Paged.js has, which is why swapping the src is the whole migration.
+-->
+<script src="/dist/folio.polyfill.js"></script>
+
+<style>
+  /* Everything below is ordinary CSS Paged Media. The engine reads it; it has
+     no configuration of its own. */
+  @page {
+    size: 148mm 210mm;      /* A5 */
+    margin: 18mm 16mm 20mm;
+
+    @top-center  { content: string(chapter); font: 8pt/1 Georgia, serif; color: #555 }
+    @bottom-center { content: counter(page); font: 9pt/1 Georgia, serif; color: #555 }
+  }
+  @page :first {
+    @top-center { content: none }
+  }
+
+  body { font: 11pt/1.5 Georgia, "Times New Roman", serif; margin: 0; hyphens: auto }
+
+  h1 { font-size: 20pt; margin: 0 0 1.5rem; line-height: 1.2 }
+  h2 {
+    font-size: 13pt; margin: 1.6rem 0 0.6rem;
+    string-set: chapter content(element);   /* what the running head reads */
+    break-after: avoid;                     /* never last on a page */
+  }
+  p { margin: 0 0 0.7rem; text-align: justify; orphans: 2; widows: 2 }
+  section { break-before: page }
+  section:first-of-type { break-before: auto }
+
+  blockquote {
+    margin: 0.8rem 1.5rem; font-style: italic; color: #444;
+    break-inside: avoid;
+  }
+  figure { margin: 1rem 0; break-inside: avoid; text-align: center }
+  figcaption { font-size: 9pt; color: #555; margin-block-start: 0.4rem }
+
+  /* A footnote: `float: footnote` moves it to the foot of whatever page its
+     call ends up on, and the engine numbers both ends. */
+  .note { float: footnote }
+
+  /* A cross-reference. The engine fills in the page number once it knows it. */
+  a.xref::after { content: " (p. " target-counter(attr(href), page) ")" }
+
+  /* Screen-only chrome, which the engine drops rather than printing. */
+  @media screen {
+    body { background: #f4f4f6 }
+    .pagedjs_page { background: #fff; box-shadow: 0 1px 6px #0003; margin: 1rem auto }
+    .pagedjs_pages { padding: 1rem 0 }
+  }
+</style>
+
+<body>
+<section>
+  <h1>Auroræ</h1>
+  <h2>Their characters and spectra</h2>
+  <p>
+    The aurora is a phenomenon of the upper air, and the observations which
+    follow were made with instruments of no great power, in a climate where
+    clear nights are the exception rather than the rule. They are offered less
+    as measurements than as a record of what was seen, and of the manner of
+    seeing it<span class="note">Instrument and method are described in the
+    second chapter.</span>.
+  </p>
+  <p>
+    Of the colours, green predominates, and after it a red which is rarely
+    pure. The spectroscope resolves the first into a single bright line whose
+    position has been the subject of much dispute; the second is fainter, more
+    diffuse, and appears chiefly at the upper margin of the display, where the
+    streamers lose their definition against the dark of the sky.
+  </p>
+  <blockquote>
+    The light is not of the kind that falls upon a landscape; it is of the
+    kind that a landscape is discovered to be standing in.
+  </blockquote>
+  <p>
+    See <a class="xref" href="#method">the account of the method</a> for what
+    the readings were taken with. The page number in that reference is not in
+    the HTML: it is resolved after the document has been paginated, and the
+    pages are laid out again if writing it in changed where one ended.
+  </p>
+  <p>
+    Successive nights were seldom alike. On the eleventh the arc stood almost
+    motionless for above an hour, its lower edge as sharp as a drawn line; on
+    the twelfth nothing appeared at all, though the conditions were to every
+    appearance the same. It is this irregularity, more than any difficulty of
+    observation, which makes the subject a hard one to reduce to order.
+  </p>
+</section>
+
+<section>
+  <h2 id="method">The method</h2>
+  <p>
+    The instrument was a direct-vision spectroscope of five prisms, mounted so
+    that it could be swung to any part of the sky without disturbing the
+    illumination of the scale. Readings were taken to the nearest half
+    division and afterwards reduced; the reduction is given in the table, and
+    the raw figures are kept in the notebooks.
+  </p>
+  <p>
+    Where the display was bright enough to be examined at leisure, the line
+    was compared directly with a reference flame. Where it was not — and this
+    was the more common case — the setting was made as quickly as the eye
+    would allow, and repeated as often as the aurora lasted. The agreement
+    between such hurried settings is better than might be feared.
+  </p>
+  <figure>
+    <svg viewBox="0 0 320 90" width="320" height="90" role="img"
+         aria-label="A spectrum with one bright line and one faint band">
+      <rect x="0" y="20" width="320" height="34" fill="#111"/>
+      <rect x="96" y="20" width="3" height="34" fill="#7ef7b0"/>
+      <rect x="215" y="20" width="14" height="34" fill="#e0574a" opacity="0.45"/>
+      <g font-family="Georgia, serif" font-size="9" fill="#555">
+        <text x="0" y="70">violet</text>
+        <text x="288" y="70">red</text>
+      </g>
+    </svg>
+    <figcaption>The auroral spectrum as drawn at the eyepiece.</figcaption>
+  </figure>
+  <p>
+    The remainder of this chapter is given to the individual displays, in the
+    order in which they were seen. Nothing has been omitted on the ground of
+    being unremarkable, since it is by the unremarkable nights that the
+    remarkable ones are to be judged.
+  </p>
+</section>
+</body>
+</html>

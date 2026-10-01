@@ -1,0 +1,18 @@
+{
+  "name": "@truke/folio-test",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Harness, fixtures and corpora",
+  "license": "MIT",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@truke/folio": "workspace:*",
+    "@truke/folio-viewer": "workspace:*"
+  },
+  "devDependencies": {
+    "pdfjs-dist": "^6.3.289"
+  }
+}

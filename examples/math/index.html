@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Mathematics</title>
+
+<!--
+  Mathematics as part of the layout, not a plugin.
+
+  The formulas are MathML, laid out by the browser's own MathML Core
+  implementation from the font's OpenType MATH table. What the engine adds is
+  the paged part, which no browser does:
+
+    - numbered display equations, with the numbers in the margin gutter and a
+      per-chapter restart that comes from the stylesheet;
+    - references to an equation by its number *and* by the page it landed on;
+    - an equation too wide for the measure broken across lines at its
+      operators, by the same fragmenter that breaks pages;
+    - a chapter title containing a formula, carried into the running head as
+      a formula rather than as a row of stray letters;
+    - a formula in a footnote, set smaller by the browser's `math-depth`.
+-->
+
+<style>
+  /* A math font is not optional: quality comes from its MATH table, and the
+     engine ships none (doc/math.md §3). This is the STIX Two Math the tests
+     use, served from the repository; any OpenType math font works, e.g.
+     Latin Modern Math. `mathFont` below makes the engine check it loaded. */
+  @font-face {
+    font-family: "STIX Two Math";
+    src: url("/packages/test/fixtures/fonts/STIXTwoMath-Regular.otf") format("opentype");
+  }
+
+  @page {
+    size: A5;
+    margin: 18mm 16mm 20mm;
+    @top-center    { content: string(chapter); font: italic 9pt/1 Georgia, serif; color: #555 }
+    @bottom-center { content: counter(page); font: 9pt/1 Georgia, serif; color: #555 }
+  }
+  @page :first { @top-center { content: none } }
+
+  /* The counter is created at the root, so every chapter on every page is in
+     its scope; an increment with no reset above it starts a new counter on
+     each page instead. */
+  body { font: 11pt/1.5 Georgia, serif; margin: 0; counter-reset: chapter }
+  math { font-family: "STIX Two Math"; font-size: 1.05em }
+
+  .title { font-size: 20pt; line-height: 1.2; margin: 0 0 1rem }
+  .chapter { break-before: page; counter-increment: chapter; counter-reset: equation }
+  h2 {
+    font-size: 14pt; margin: 0 0 0.8rem; break-after: avoid;
+    /* content(element): the heading is cloned into the running head, formula
+       and all. `content()` would give its text, which for math is garbage. */
+    string-set: chapter content(element);
+  }
+  p { margin: 0 0 0.6rem; text-align: justify; hyphens: auto; orphans: 2; widows: 2 }
+
+  /* Which equations are numbered is the author's to say, with a selector. The
+     engine counts `equation` — restarting where the stylesheet resets it, on
+     each chapter here — and prints "(n)" in the gutter. */
+  math[display="block"]:not(.unnumbered) { math-number: yes }
+
+  /* References, resolved after pagination: the equation's number, the chapter
+     it is in, and the page it landed on. */
+  a.eq, a.eqpage { color: inherit; text-decoration: none }
+  a.eq::after {
+    content: "(" target-counter(attr(href), equation) ") in chapter "
+             target-counter(attr(href), chapter);
+  }
+  a.eqpage::after { content: " on page " target-counter(attr(href), page) }
+
+  .note { float: footnote }
+
+  @media screen {
+    body { background: #eceef2 }
+    .pagedjs_page { background: #fff; box-shadow: 0 1px 6px #0003; margin: 1.5rem auto }
+    .pagedjs_pages { padding: 0.5rem 0 }
+  }
+</style>
+
+<article id="book">
+  <h1 class="title">A Few Formulas</h1>
+  <p>Equations are numbered within their chapter. The identity
+  <a class="eq" href="#euler"></a> is the one everybody
+  remembers; the series for the exponential, <a class="eq" href="#exp"></a><a
+  class="eqpage" href="#exp"></a>, is where it comes from. The long equation
+  <a class="eq" href="#long"></a> is there to be too wide for the page, and
+  the matrix in <a class="eq" href="#rotation"></a> to show a fence stretching
+  to fit what it holds.</p>
+
+  <section class="chapter">
+    <h2>The identity <math><msup><mi>e</mi><mrow><mi>i</mi><mi>π</mi></mrow></msup><mo>+</mo><mn>1</mn><mo>=</mo><mn>0</mn></math></h2>
+    <p>Inline formulas sit in the line like words: for any real
+    <math><mi>θ</mi></math>, the point
+    <math><msup><mi>e</mi><mrow><mi>i</mi><mi>θ</mi></mrow></msup></math>
+    lies on the unit circle, at angle <math><mi>θ</mi></math> from the real
+    axis. Written out,</p>
+
+    <math display="block" id="euler-general">
+      <msup><mi>e</mi><mrow><mi>i</mi><mi>θ</mi></mrow></msup>
+      <mo>=</mo><mo>cos</mo><mi>θ</mi><mo>+</mo><mi>i</mi><mo>sin</mo><mi>θ</mi>
+    </math>
+
+    <p>and at <math><mi>θ</mi><mo>=</mo><mi>π</mi></math> the sine vanishes
+    and the cosine is <math><mo>−</mo><mn>1</mn></math>, which is</p>
+
+    <math display="block" id="euler">
+      <msup><mi>e</mi><mrow><mi>i</mi><mi>π</mi></mrow></msup><mo>+</mo><mn>1</mn><mo>=</mo><mn>0</mn>
+    </math>
+
+    <p>Its title rides in the running head of every page of this chapter as a
+    formula, set a step smaller by <code>math-depth</code>.<span
+    class="note">A footnote can hold a formula too:
+    <math><msubsup><mo>∫</mo><mn>0</mn><mi>π</mi></msubsup><mo>sin</mo><mi>x</mi><mspace width="0.17em"/><mi>d</mi><mi>x</mi><mo>=</mo><mn>2</mn></math>.
+    The browser sets it at the note's size.</span></p>
+  </section>
+
+  <section class="chapter">
+    <h2>Series</h2>
+    <p>The exponential is the sum of its own Taylor series, which converges for
+    every complex <math><mi>z</mi></math>:</p>
+
+    <math display="block" id="exp">
+      <msup><mi>e</mi><mi>z</mi></msup><mo>=</mo>
+      <munderover><mo>∑</mo><mrow><mi>n</mi><mo>=</mo><mn>0</mn></mrow><mi>∞</mi></munderover>
+      <mfrac><msup><mi>z</mi><mi>n</mi></msup><mrow><mi>n</mi><mo>!</mo></mrow></mfrac>
+    </math>
+
+    <p>Expanding a product term by term produces an equation wider than the
+    page. Browsers do not break display math — MathML Core makes it
+    <code>nowrap</code> — so the engine does, at the operators, preferring the
+    relation, and aligns the continuation lines after it:</p>
+
+    <math display="block" id="long">
+      <msup><mrow><mo>(</mo><mi>a</mi><mo>+</mo><mi>b</mi><mo>)</mo></mrow><mn>5</mn></msup>
+      <mo>=</mo><msup><mi>a</mi><mn>5</mn></msup>
+      <mo>+</mo><mn>5</mn><msup><mi>a</mi><mn>4</mn></msup><mi>b</mi>
+      <mo>+</mo><mn>10</mn><msup><mi>a</mi><mn>3</mn></msup><msup><mi>b</mi><mn>2</mn></msup>
+      <mo>+</mo><mn>10</mn><msup><mi>a</mi><mn>2</mn></msup><msup><mi>b</mi><mn>3</mn></msup>
+      <mo>+</mo><mn>5</mn><mi>a</mi><msup><mi>b</mi><mn>4</mn></msup>
+      <mo>+</mo><msup><mi>b</mi><mn>5</mn></msup>
+      <mo>=</mo><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>0</mn></mrow><mn>5</mn></munderover>
+      <mrow><mo>(</mo><mfrac linethickness="0"><mn>5</mn><mi>k</mi></mfrac><mo>)</mo></mrow>
+      <msup><mi>a</mi><mrow><mn>5</mn><mo>−</mo><mi>k</mi></mrow></msup>
+      <msup><mi>b</mi><mi>k</mi></msup>
+    </math>
+
+    <p>Not every display needs a number; this one is left out by its class,
+    and the numbering does not notice it was there:</p>
+
+    <math display="block" class="unnumbered">
+      <mfrac><mn>1</mn><mrow><mn>1</mn><mo>−</mo><mi>x</mi></mrow></mfrac>
+      <mo>=</mo><mn>1</mn><mo>+</mo><mi>x</mi><mo>+</mo><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mo>⋯</mo>
+    </math>
+  </section>
+
+  <section class="chapter">
+    <h2>Linear algebra</h2>
+    <p>Numbering starts again with the chapter, because the stylesheet says
+    <code>counter-reset: equation</code> on it. A rotation by
+    <math><mi>θ</mi></math> in the plane is</p>
+
+    <math display="block" id="rotation">
+      <mi>R</mi><mo>(</mo><mi>θ</mi><mo>)</mo><mo>=</mo>
+      <mrow><mo>[</mo>
+        <mtable>
+          <mtr><mtd><mo>cos</mo><mi>θ</mi></mtd><mtd><mo>−</mo><mo>sin</mo><mi>θ</mi></mtd></mtr>
+          <mtr><mtd><mo>sin</mo><mi>θ</mi></mtd><mtd><mo>cos</mo><mi>θ</mi></mtd></mtr>
+        </mtable>
+      <mo>]</mo></mrow>
+    </math>
+
+    <p>and its determinant is one:</p>
+
+    <math display="block" id="det">
+      <mo>det</mo><mi>R</mi><mo>(</mo><mi>θ</mi><mo>)</mo><mo>=</mo>
+      <msup><mo>cos</mo><mn>2</mn></msup><mi>θ</mi><mo>+</mo><msup><mo>sin</mo><mn>2</mn></msup><mi>θ</mi>
+      <mo>=</mo><mn>1</mn>
+    </math>
+
+    <p>Composing two rotations adds their angles, which is
+    equation <a class="eq" href="#euler-general"></a> again, read as a statement about
+    matrices: <math><mi>R</mi><mo>(</mo><mi>α</mi><mo>)</mo><mi>R</mi><mo>(</mo><mi>β</mi><mo>)</mo><mo>=</mo><mi>R</mi><mo>(</mo><mi>α</mi><mo>+</mo><mi>β</mi><mo>)</mo></math>.</p>
+  </section>
+</article>
+
+<script type="module">
+  import { Previewer } from "/dist/folio.mjs";
+
+  // `mathFont` makes the engine prove the family has a MATH table before it
+  // measures anything; a missing one would lay every formula out wrongly and
+  // silently. The Previewer paginates the article in place.
+  const flow = await new Previewer({ mathFont: "STIX Two Math" }).preview("#book");
+  console.log(`${flow.total} pages`, flow.overflowed);
+</script>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "@truke/folio",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Paged-media engine: stages 1-5",
+  "license": "MIT",
+  "exports": {
+    ".": "./src/index.ts",
+    "./math": "./src/math-screen.ts"
+  }
+}

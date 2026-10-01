@@ -1,0 +1,92 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>three hundred pages</title>
+<!--
+  M1's performance fixture (`doc/milestones.md` §M1).
+
+  A book, not a test case: three hundred pages of ordinary prose with
+  headings, a running head, lists, blockquotes and a table every twentieth
+  chapter — the shapes a fragmenter meets in a real document, at the length
+  where an O(n²) fragmenter stops being usable.
+
+  Generated in the page rather than checked in as half a megabyte of markup,
+  and generated deterministically: the same document on every run and every
+  engine, which is what makes a recorded budget comparable between them. No
+  webfont is named, so it lays out in the host's serif — the page *count* is
+  therefore host-specific, exactly as the corpus baselines are, and the budget
+  in `perf.spec.ts` is written so it does not depend on it.
+-->
+<style>
+  @page {
+    size: 400px 600px;
+    margin: 20px;
+    @top-center { content: string(chapter) }
+    @bottom-center { content: counter(page) }
+  }
+  body { margin: 0; font: 16px/20px serif }
+  p { margin: 0 0 12px; orphans: 2; widows: 2 }
+  h2 {
+    font-size: 18px; margin: 0 0 10px;
+    string-set: chapter content(element);
+    break-after: avoid;
+  }
+  ul { margin: 0 0 12px; padding-inline-start: 24px }
+  blockquote { margin: 0 0 12px 20px; font-style: italic }
+  table { border-collapse: collapse; margin: 0 0 12px; inline-size: 100% }
+  th, td { border: 1px solid #999; padding: 2px 4px; text-align: start }
+</style>
+<body>
+<article id="src"></article>
+<script>
+const WORDS = ("alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima " +
+  "mike november oscar papa quebec romeo sierra tango uniform victor whiskey xray " +
+  "yankee zulu anvil bramble cinder dovetail ember furlong gantry harrow").split(" ");
+
+/** Deterministic prose: no clock, no randomness, no host in the answer. */
+const words = (seed, n) => {
+  const out = [];
+  for (let i = 0; i < n; i++) out.push(WORDS[(seed * 13 + i * 7 + (i % 5)) % WORDS.length]);
+  return out.join(" ");
+};
+const sentence = (seed, n) => words(seed, n).replace(/^./, (c) => c.toUpperCase()) + ".";
+const paragraph = (seed) => {
+  const parts = [];
+  for (let i = 0; i < 3 + (seed % 3); i++) parts.push(sentence(seed + i, 9 + ((seed + i) % 11)));
+  return parts.join(" ");
+};
+
+const out = [];
+/**
+ * Roughly two pages a chapter at 400x600, so 150 chapters is about 300 pages.
+ *
+ * `?chapters=N` shortens it, which is how the budget is expressed as a shape
+ * rather than as a number: half the book should cost half as much, and an
+ * O(n²) fragmenter makes it cost a quarter.
+ */
+const CHAPTERS = Number(new URLSearchParams(location.search).get("chapters") ?? 150);
+for (let c = 0; c < CHAPTERS; c++) {
+  out.push(`<section><h2>Chapter ${c + 1}. ${words(c, 3)}</h2>`);
+  for (let p = 0; p < 6; p++) {
+    const seed = c * 11 + p;
+    out.push(`<p>${paragraph(seed)}</p>`);
+    if (p === 2 && c % 5 === 0) {
+      out.push("<ul>" + [0, 1, 2, 3].map((i) => `<li>${words(seed + i, 7)}</li>`).join("") + "</ul>");
+    }
+    if (p === 4 && c % 7 === 0) out.push(`<blockquote>${sentence(seed, 22)}</blockquote>`);
+  }
+  // A table every twentieth chapter, wide enough to be split: this is the
+  // shape `chunk.ts` must never cut, so the fixture makes sure it meets one.
+  if (c % 20 === 0) {
+    const rows = [];
+    for (let r = 0; r < 24; r++) {
+      rows.push(`<tr><td>${words(c + r, 2)}</td><td>${words(c + r + 1, 4)}</td><td>${r * 7}</td></tr>`);
+    }
+    out.push(
+      `<table><thead><tr><th>${words(c, 1)}</th><th>${words(c + 1, 2)}</th><th>n</th></tr></thead>` +
+        `<tbody>${rows.join("")}</tbody></table>`,
+    );
+  }
+  out.push("</section>");
+}
+document.getElementById("src").innerHTML = out.join("");
+</script>

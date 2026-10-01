@@ -1,0 +1,48 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>math fixture</title>
+<style>
+  @font-face {
+    font-family: "STIX Two Math";
+    src: url("./fonts/STIXTwoMath-Regular.otf") format("opentype");
+  }
+  @page {
+    size: 400px 300px;
+    margin: 20px;
+    @top-center { content: string(chaptertitle) }
+  }
+  body { margin: 0; font: 16px/20px serif }
+  p, h2 { margin: 0 }
+  h2 { font-size: 16px; string-set: chaptertitle content(element) }
+  math { font-family: "STIX Two Math" }
+  /* Which equations are numbered, through the §5 carrier: a selector and a
+     cascade, not a class the engine invented. */
+  math.numbered { math-number: yes }
+  a.eqref::after { content: " (" target-counter(attr(href), equation) ")" }
+  a.eqpage::after { content: " on page " target-counter(attr(href), page) }
+</style>
+<body>
+<article id="src">
+<p>See <a class="eqref" href="#euler">the identity</a> and <a class="eqpage" href="#euler">where it is</a>.</p>
+
+<math class="numbered" id="first" display="block"><mrow><mi>a</mi><mo>+</mo><mi>b</mi><mo>=</mo><mi>c</mi></mrow></math>
+
+<p>alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango.</p>
+
+<math class="numbered" id="wide" display="block"><semantics><mrow><mi>x</mi><mo>+</mo><mi>y</mi><mo>+</mo><mi>z</mi><mo>=</mo><mi>a</mi><mo>+</mo><mi>b</mi><mo>+</mo><mi>c</mi><mo>+</mo><mi>d</mi><mo>+</mo><mi>e</mi><mo>+</mo><mi>f</mi><mo>+</mo><mi>g</mi><mo>+</mo><mi>h</mi><mo>+</mo><mi>i</mi><mo>+</mo><mi>j</mi><mo>+</mo><mi>k</mi><mo>+</mo><mi>m</mi></mrow><annotation encoding="application/x-tex">x+y+z=a+b+c+d+e+f+g+h+i+j+k+m</annotation></semantics></math>
+
+<p>alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel india juliet.</p>
+
+<h2 id="chapter">Euler <math display="inline"><mrow><msup><mi>e</mi><mrow><mi>i</mi><mi>π</mi></mrow></msup><mo>+</mo><mn>1</mn><mo>=</mo><mn>0</mn></mrow></math></h2>
+
+<p>alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie.</p>
+
+<math class="numbered" id="euler" display="block"><mrow><msup><mi>e</mi><mrow><mi>i</mi><mi>π</mi></mrow></msup><mo>+</mo><mn>1</mn><mo>=</mo><mn>0</mn></mrow></math>
+
+<p>alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango alpha bravo charlie delta echo foxtrot golf hotel.</p>
+
+<math class="numbered" id="fenced" display="block"><mrow><mi>f</mi><mrow><mo>(</mo><mi>x</mi><mo>+</mo><mi>y</mi><mo>+</mo><mi>z</mi><mo>)</mo></mrow><mo>+</mo><mi>g</mi><mrow><mo>(</mo><mi>u</mi><mo>+</mo><mi>v</mi><mo>+</mo><mi>w</mi><mo>)</mo></mrow><mo>+</mo><mi>h</mi><mrow><mo>(</mo><mi>s</mi><mo>+</mo><mi>t</mi><mo>+</mo><mi>r</mi><mo>)</mo></mrow><mo>+</mo><mi>k</mi><mrow><mo>(</mo><mi>p</mi><mo>+</mo><mi>q</mi><mo>+</mo><mi>o</mi><mo>)</mo></mrow></mrow></math>
+
+<p>alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec.</p>
+</article>
+</body>

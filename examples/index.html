@@ -1,0 +1,58 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>folio examples</title>
+<style>
+  body { font: 16px/1.6 system-ui, sans-serif; margin: 3rem auto; max-inline-size: 42rem; padding: 0 1rem }
+  h1 { font-size: 1.4rem }
+  li { margin-block-end: 1rem }
+  code { background: #0001; padding: 0.1em 0.3em; border-radius: 3px }
+  @media (prefers-color-scheme: dark) {
+    body { background: #14161a; color: #e6e6e6 }
+    code { background: #fff2 }
+    a { color: #7fb3ff }
+  }
+</style>
+<h1>folio examples</h1>
+<p>Built from <code>dist/</code>. Run <code>pnpm build</code> first if these 404.</p>
+<ul>
+  <li>
+    <a href="./drop-in/">The drop-in</a> — one script tag, no code.
+    The page paginates itself on load. This is the Paged.js replacement path.
+  </li>
+  <li>
+    <a href="./previewer/">The Previewer</a> — one call from inside an
+    application: paginate a hidden manuscript into a preview pane when a
+    button is pressed. A table of contents with dot leaders, a footnote and a
+    cross-reference.
+  </li>
+  <li>
+    <a href="./math/">Mathematics</a> — MathML laid out by the browser from the
+    font's MATH table, with the paged part added: numbered equations that
+    restart per chapter, references by number and page, an equation too wide
+    for the line broken at its operators, a formula in the running head and
+    one in a footnote.
+  </li>
+  <li>
+    <a href="./tex/">Mathematics in LaTeX</a> — the same book written with
+    <code>\( … \)</code>, <code>\[ … \]</code>, <code>\begin{equation}</code>,
+    <code>\label</code> and <code>\eqref</code>, as for MathJax. One more
+    script tag turns it into MathML before the engine measures; the pages
+    come out the same.
+  </li>
+  <li>
+    <a href="./report/">A technical report</a> — text, mathematics and tables
+    in a sans family (IBM Plex Sans with Noto Sans Math, served from
+    <code>examples/fonts/</code>): numbered equations, a table with formulas
+    in it, a long table split across pages with its header repeated, tables
+    and equations referred to by number and page, a footnote.
+  </li>
+  <li>
+    <a href="./report-noto/">The same report in Noto Sans</a> — nothing
+    changed but the text face: Noto Sans with Noto Sans Math, drawn as one
+    family, so the formulas sit at the text's own size.
+  </li>
+  <li>
+    <a href="./viewer/">The library and the viewer</a> — paginate under your
+    own control and show the result with spreads, zoom and page navigation.
+  </li>
+</ul>

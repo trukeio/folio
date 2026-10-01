@@ -1,0 +1,49 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>multicol spike</title>
+<style>
+  /* One column the size of a page area, content flowing into the next column:
+     if the browser will place these breaks, they are page breaks. */
+  #flow {
+    /* Width is pinned. column-width is a *minimum*: on a 612px container it
+       yields one 612px column with a pitch of 652, not 400 - and a column
+       index computed from the wrong pitch is wrong everywhere. */
+    width: 400px;
+    column-width: 400px;
+    column-gap: 40px;
+    column-fill: auto;
+    height: 300px;
+    font: 16px/1.5 "STIX Two Text", serif;
+  }
+  @font-face {
+    font-family: "STIX Two Text";
+    src: url("../fonts/STIXTwoText-Regular.otf") format("opentype");
+  }
+  p { margin: 0 0 1em; }
+  h2 { font-size: 1.1em; margin: 0 0 .5em; break-before: column; }
+  .avoid { break-inside: avoid; background: #eee; }
+  .wo { widows: 3; orphans: 3; }
+  math { font-family: "STIX Two Math"; }
+  @font-face {
+    font-family: "STIX Two Math";
+    src: url("../fonts/STIXTwoMath-Regular.otf") format("opentype");
+  }
+</style>
+<style>
+  /* A deterministic case for break-inside: avoid. The block is shorter than a
+     column but taller than what is left of one, which is the only situation
+     where `avoid` can be honoured at all - a block taller than the
+     fragmentainer has to split whatever the author asked for. */
+  #avoidflow {
+    width: 400px;
+    column-width: 400px;
+    column-gap: 40px;
+    column-fill: auto;
+    height: 300px;
+  }
+  #spacer { height: 250px; background: #f4f4f4; }
+  #box { height: 120px; background: #ddd; }
+</style>
+<body>
+<div id="flow"></div>
+<div id="avoidflow"><div id="spacer"></div><div id="box"></div></div>

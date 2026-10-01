@@ -1,0 +1,35 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>leaders</title>
+<!--
+  M6: `leader()`. A table of contents on the first page, each entry a title, a
+  run of dots and the page its chapter starts on, which is on a later page and
+  known only after pagination. One title is long enough to wrap, one entry
+  uses a string pattern, one `leader(solid)`.
+-->
+<style>
+  @page { size: 360px 240px; margin: 20px; }
+  body { margin: 0; font: 12px/16px serif; }
+  nav ol { list-style: none; margin: 0; padding: 0; }
+  nav a { color: inherit; text-decoration: none; }
+  nav a::after { content: leader(dotted) " " target-counter(attr(href), page); }
+  nav a.dash::after { content: leader("-") target-counter(attr(href), page); }
+  nav a.solid::after { content: leader(solid) target-counter(attr(href), page); }
+  section { break-before: page; }
+</style>
+<body>
+<article id="src">
+  <nav>
+    <ol>
+      <li><a href="#one">One</a></li>
+      <li><a href="#two">A second chapter whose title runs on well past the end of the line</a></li>
+      <li><a class="dash" href="#three">Three</a></li>
+      <li><a class="solid" href="#four">Four</a></li>
+    </ol>
+  </nav>
+  <section id="one"><h2>One</h2><p>Alpha.</p></section>
+  <section id="two"><h2>Two</h2><p>Bravo.</p></section>
+  <section id="three"><h2>Three</h2><p>Charlie.</p></section>
+  <section id="four"><h2>Four</h2><p>Delta.</p></section>
+</article>
+</body>
