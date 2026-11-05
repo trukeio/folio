@@ -38,6 +38,16 @@ test.describe("print to PDF", () => {
     expectNumbersOnce(await textOf(await page.pdf({ preferCSSPageSize: true, printBackground: true })), expected);
   });
 
+  test("printed with screen media emulated, each number still prints once", async ({ page }) => {
+    // Some harnesses print with `emulateMedia({ media: "screen" })`. The
+    // author's `@page` still applies then, and the overrides used to be in
+    // `@media print`: Chromium drew its margin boxes around ours (KFG1).
+    await load(page, A5);
+    const expected = await numbersOnScreen(page);
+    await page.emulateMedia({ media: "screen" });
+    expectNumbersOnce(await textOf(await page.pdf({ preferCSSPageSize: true, printBackground: true })), expected);
+  });
+
   test("an author's @page :first, named sizes and page: do not print through", async ({ page }) => {
     await load(page, MIXED);
     const expected = await sheetSizes(page);
@@ -99,8 +109,9 @@ test.describe("print media, every engine", () => {
       const sheet = [...document.styleSheets].find(
         (s) => (s.ownerNode as Element | null)?.id === "folio-print-css",
       );
-      const media = [...(sheet?.cssRules ?? [])].find((r) => r instanceof CSSMediaRule);
-      const pages = [...(media?.cssRules ?? [])].filter((r) => r instanceof CSSPageRule);
+      // At the top level, not in the print block: they apply to a PDF made
+      // with screen media emulated too.
+      const pages = [...(sheet?.cssRules ?? [])].filter((r) => r instanceof CSSPageRule);
       const sheets = [...document.querySelectorAll<HTMLElement>(".pagedjs_page")];
       const style = (el: Element): CSSStyleDeclaration => getComputedStyle(el);
       return {

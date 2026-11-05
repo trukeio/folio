@@ -421,6 +421,14 @@ function insertRewrittenCss(doc: Document, css: string): void {
  * of page 1 of every document not paginated from `body`. So in print the
  * pages' ancestors are the only elements shown, with nothing around them,
  * which is the viewer's rule for the same reason (`preparePrint`).
+ *
+ * The page rules are outside `@media print`, the rest inside. `@page` and
+ * `page:` mean nothing on a screen, and a PDF printed with screen media
+ * emulated (`page.emulateMedia({ media: "screen" })`, as some harnesses do)
+ * still applies the author's unconditional `@page`: with the overrides in the
+ * print block, that PDF had Chromium's margin boxes around ours (KFG1, Chrome
+ * 156). Hiding what is not a page has to stay in print, or it hides the
+ * application around the pages on screen too.
  */
 function insertPrintCss(doc: Document, area: HTMLElement, pages: readonly HTMLElement[]): void {
   const id = "folio-print-css";
@@ -447,9 +455,10 @@ function insertPrintCss(doc: Document, area: HTMLElement, pages: readonly HTMLEl
 
   const style = doc.createElement("style");
   style.id = id;
-  style.textContent = `@media print {
-@page { margin: 0 !important; ${boxes} }
+  style.textContent = `@page { margin: 0 !important; ${boxes} }
 ${sizes.join("\n")}
+.pagedjs_page * { page: auto !important }
+@media print {
 body :not([${PRINT_PATH}], .${PAGES_CLASS}, .${PAGES_CLASS} *) { display: none !important }
 [${PRINT_PATH}] {
   display: block !important; position: static !important;
@@ -458,7 +467,6 @@ body :not([${PRINT_PATH}], .${PAGES_CLASS}, .${PAGES_CLASS} *) { display: none !
 .${PAGES_CLASS} { margin: 0 !important; padding: 0 !important }
 .pagedjs_page { margin: 0 !important; box-shadow: none !important; break-after: page }
 .pagedjs_page:last-child { break-after: auto }
-.pagedjs_page * { page: auto !important }
 }`;
   doc.head.append(style);
 }

@@ -84,3 +84,12 @@ named landscape page, the bar put back after rendering, `folio-tex` first)
 prints one number per sheet, at the sheets' sizes, with no bar. The README's
 advice to add `@media print { @page { margin: 0 } }` was out of date and
 did the harm described; it now says not to.
+
+**Found after all**, the same day: KFG1's PDF was made with screen media
+emulated. The author's `@page` rules apply to a PDF then, and the overrides
+were inside `@media print`, so they did not. The `@page` and `page:` rules now
+sit outside it, in `insertPrintCss` and in the viewer's copy, as they mean
+nothing on a screen; hiding what is not a page stays print-only. Checked on
+KFG1's demo in Chrome 156 with its workaround removed: seven sheets, one set
+of margin boxes each, in print media and in emulated screen media alike
+(`print.spec.ts`, "printed with screen media emulated").

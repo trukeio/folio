@@ -293,7 +293,9 @@ function sizeOfSheet(sheet: HTMLElement): [number, number] {
  * `!important`, because an author's `@page :first` outranks a plain `@page` —
  * and an author's `page:` inside a page is set back to `auto`, which would
  * otherwise force breaks mid-page. The same rules as the engine's
- * `insertPrintCss`, restated because the viewer depends on nothing.
+ * `insertPrintCss`, restated because the viewer depends on nothing. As
+ * there, the page rules sit outside `@media print`, so that a PDF printed
+ * with screen media emulated does not get the author's margin boxes either.
  */
 function preparePrint(doc: Document, list: HTMLElement, holders: readonly HTMLElement[]): void {
   for (const el of doc.querySelectorAll(`[${PATH}]`)) el.removeAttribute(PATH);
@@ -315,9 +317,10 @@ function preparePrint(doc: Document, list: HTMLElement, holders: readonly HTMLEl
   doc.getElementById(PRINT_ID)?.remove();
   const style = doc.createElement("style");
   style.id = PRINT_ID;
-  style.textContent = `@media print {
-@page { margin: 0 !important; ${boxes} }
+  style.textContent = `@page { margin: 0 !important; ${boxes} }
 ${sizes.join("\n")}
+.folio-viewer-page * { page: auto !important }
+@media print {
 body :not([${PATH}], .folio-viewer, .folio-viewer *) { display: none !important }
 [${PATH}] {
   display: block !important; position: static !important;
@@ -328,7 +331,6 @@ body :not([${PATH}], .folio-viewer, .folio-viewer *) { display: none !important 
   zoom: 1 !important; box-shadow: none; break-after: page; break-inside: avoid;
 }
 .folio-viewer-page:last-child { break-after: auto }
-.folio-viewer-page * { page: auto !important }
 }`;
   doc.head.append(style);
 }

@@ -646,9 +646,12 @@ showing a page that had never been measured:
 the author's original sheets, `@page` included, and Chromium (131+) applies
 `@page` margin boxes natively when printing — so "Print to PDF" drew every
 page number twice and shrank each sheet into the author's margins.
-`insertPrintCss` (`preview.ts`) makes the browser's page exactly our sheet in
-print media, with `!important` so `@page :first` and named pages cannot
-outrank it. `print.spec.ts` checks the PDF itself with pdf.js — screen
+`insertPrintCss` (`preview.ts`) makes the browser's page exactly our sheet,
+with `!important` so `@page :first` and named pages cannot outrank it. **Its
+`@page` rules are outside `@media print`**: a PDF made with screen media
+emulated still applies the author's `@page`, and KFG1's harness got Chromium's
+margin boxes around ours that way (2026-11-05). Only hiding what is not a page
+is print-only. `print.spec.ts` checks the PDF itself with pdf.js — screen
 screenshots cannot see this bug at all. The viewer (`renderViewer`) has its
 own copy of the same rules, because it depends on nothing, plus two of its
 own: it mounts every page on `beforeprint` (a virtualized list printed blank
