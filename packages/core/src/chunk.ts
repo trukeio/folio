@@ -19,22 +19,30 @@
  *
  * One thing breaks the rule, and it is handled here: a **width-coupled
  * container** resolves its children's sizes from children the cut may have
- * removed. A table's column widths come from *all* its rows, so half a table
- * is a table with different columns and therefore different row heights,
- * including rows above the limit; flex, grid and multicol size the same way.
- * It also takes `repeatTableParts` with it — a truncated table would be
- * stamped as continuing and handed a footer the real page will not have. So a
- * chunk never ends inside one; it ends past the outermost one it landed in.
+ * removed. Flex, grid and multicol size their items from all of them, and half
+ * a formula is not a formula, so a chunk never ends inside one; it ends past
+ * the outermost one it landed in.
  *
- * The cost is that a table taller than a chunk is measured whole on every
- * page it crosses, which is the old quadratic behaviour confined to one
- * table. `table-layout: fixed` opts out, the columns no longer being the
- * rows' to decide.
+ * A table is coupled too, by its columns, and it used to be treated the same
+ * way: a table taller than a chunk was measured whole on every page it
+ * crossed, which is the old quadratic behaviour confined to one table — 300
+ * rows took seven times what 100 did (`doc/long-tables.md`). But the whole
+ * table is not what the page holds either. A page is composed from the rows
+ * that fit on it, and its columns come from those rows, so the remainder's
+ * columns were already a guess the recompose loop corrects, and a chunk's rows
+ * are a better one: they are a superset of the page's, and fewer. So in a
+ * table the unit is the row: a chunk ends past the row it landed in, never in
+ * the middle of one, and `repeatTableParts` stamps the cut table as
+ * continuing, which is what the page that breaks inside it will be. A table
+ * with a cell spanning rows is still taken whole, since a cut through the span
+ * changes the height of the row the span starts in.
  */
 import { MATHML_NS } from "./math/compose.js";
 import type { Position } from "./types.js";
 
 const TEXT_NODE = 3;
+/** A cell spanning rows: its table is cut whole (`domCoupling`). */
+const ROW_SPAN = ":is(td, th)[rowspan]:not([rowspan='1'])";
 const ELEMENT_NODE = 1;
 
 /**
@@ -206,11 +214,11 @@ function domCoupling(source: TreeNode): (node: TreeNode) => boolean {
   return (node) => {
     const style = view.getComputedStyle(node as unknown as Element);
     const display = style.display;
-    if (display.startsWith("table") || display === "inline-table") {
-      // Fixed layout resolves the columns from the first row and the author's
-      // widths, so the rows below the cut cannot change the rows above it.
-      return style.tableLayout !== "fixed";
+    if (display === "table-row") return true;
+    if (display === "table" || display === "inline-table") {
+      return (node as unknown as Element).querySelector(ROW_SPAN) !== null;
     }
+    if (display.startsWith("table")) return false;
     if (/flex|grid/.test(display) || (node as { namespaceURI?: string }).namespaceURI === MATHML_NS) return true;
     return style.columnCount !== "auto" || style.columnWidth !== "auto";
   };

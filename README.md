@@ -241,15 +241,22 @@ touches only the element you give it and the one you render into.
   your `div { … }` rules do not reach them.
 
 **Printing.** The pages are ordinary DOM at their real size, so the browser's
-print dialogue prints them. Give the browser's own page no margin, or it adds
-a second set around the ones the engine drew:
+print dialogue prints them, one sheet each, with nothing to add. Once the pages
+are built the engine puts a print stylesheet in the document
+(`#folio-print-css`) that takes the browser's own page to the size of each of
+ours, with no margins and no margin boxes, and hides everything that is not a
+page. Chromium (131+) draws `@page` margin boxes itself, and without that every
+number would print twice; with it, they print once, and `page.pdf({
+preferCSSPageSize: true })` gives the same sheets. Two consequences:
 
-```css
-@media print {
-  @page { margin: 0 }
-  .pagedjs_pages { padding: 0 }
-}
-```
+- **Do not write `@media print { @page { margin: 0 } }`** or margin boxes with
+  `content: none` in print. `@media print` is what the pages are measured
+  against, so such a rule changes the engine's own pages too: their margins go,
+  or their running heads.
+- **A toolbar outside the pages does not print**, without a rule of yours.
+  Your `@media print` rules apply to the pages on screen as well, since the
+  screen is the preview of the print, so `@media print { .bar { display: none
+  } }` hides the bar on screen too; you need neither.
 
 **Content Security Policy.** The engine writes `<style>` elements and inline
 `style` attributes into the page and into its measuring frame, so a policy

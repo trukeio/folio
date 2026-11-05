@@ -223,3 +223,28 @@ test("a chunk never ends inside a formula, on either engine", async ({ page }) =
   // After the whole <math>, the source's second child, and nowhere inside it.
   expect(end).toEqual({ path: [1], offset: 0, after: true });
 });
+
+test("a chunk ends after a table's row, not past the table", async ({ page }) => {
+  // A table used to be taken whole, so one of 300 rows was measured whole on
+  // every page it crossed: quadratic (`doc/long-tables.md`). The page holds
+  // only its own rows anyway; the unit is the row, unless a cell spans rows.
+  const ends = await page.evaluate(() => {
+    const t = window.folio;
+    const src = document.createElement("div");
+    const row = (s: string, span = "") => `<tr><td${span}>${s}</td><td>${s}</td></tr>`;
+    const at = (html: string) => {
+      src.innerHTML = html;
+      // "abc" twice is 6 characters, "def" 3 more: a budget of 7 runs out in
+      // the second row.
+      return t.chunkFrom(src, { path: [], offset: 0, after: false }, 7).end;
+    };
+    document.body.append(src);
+    const plain = at(`<table><tbody>${row("abc")}${row("def")}${row("ghi")}</tbody></table>`);
+    const spanned = at(`<table><tbody>${row("abc")}${row("def", ' rowspan="2"')}${row("ghi")}</tbody></table>`);
+    src.remove();
+    return { plain, spanned };
+  });
+  // table > tbody > second tr, whole.
+  expect(ends.plain).toEqual({ path: [0, 0, 1], offset: 0, after: true });
+  expect(ends.spanned).toEqual({ path: [0], offset: 0, after: true });
+});

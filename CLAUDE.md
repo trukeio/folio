@@ -483,8 +483,9 @@ The **2,300-line budget of §3 is for the fragmenter** — "the part that makes
 break decisions": `candidates`, `select`, `penalties`, `paginate`, `text`,
 `position`, and now `chunk`, which is §3's "measure less" and is counted with
 them rather than argued out of the budget.
-**That is 2,166 of the 2,300**: a page after a `<br>` took 5. It was
-2,161 before; `::nth-fragment` took 4 from 2,157, the state that carries
+**That is 2,174 of the 2,300**: a chunk that ends after a table's row
+rather than past the table took 8 (`doc/long-tables.md`). It was 2,166
+before; a page after a `<br>` took 5 from 2,161; `::nth-fragment` took 4 from 2,157, the state that carries
 each element's fragment index from page to page; page floats took 19 from 2,138, as a second term in the
 bisection's reserve (`review.md` §7);
 footnote splitting, the bisected break and the offset counted outside notes
@@ -877,11 +878,14 @@ design change, not an edit.
   (`src/chunk.ts`). It is safe because block flow is one-directional: a
   candidate at or above the page limit has the same geometry in a truncated box
   as in a whole one. Two things would break that and are handled — a chunk
-  never ends inside a width-coupled container (a table resolves its columns
-  from *all* its rows, so half a table has different row heights above the cut,
-  and `repeatTableParts` would hand it a footer the real page will not have),
+  never ends inside a width-coupled container (flex, grid, multicol, MathML),
   and a box that fits is never read as "the document ended" unless the chunk
-  reached the end. Grow the chunk rather than trusting a box that fits.
+  reached the end. Grow the chunk rather than trusting a box that fits. **In a
+  table the unit is the row**, not the table (2026-11-05): taking a table whole
+  measured all its remaining rows on every page, and 300 rows took seven times
+  what 100 did (`doc/long-tables.md`). A page's table sizes its columns from
+  its own rows anyway, so the chunk's rows are the closer guess. A table with a
+  cell spanning rows is still taken whole.
 - **The browser does layout; JS only decides where things break.** The engine
   owns no CSS cascade. Unknown properties are renamed to `--x-*` carriers and
   cascaded by the browser (rung P, §5); fragment and page stamps are rung P+;
