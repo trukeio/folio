@@ -214,6 +214,7 @@ export function composePage(options: ComposeOptions): DocumentFragment {
     // A `style` attribute is author CSS too, and gets stage 1's rewrites.
     const style = clone.getAttribute("style");
     if (style !== null && style !== "") clone.setAttribute("style", rewriteInlineStyle(style));
+    stampNaturalSize(element, clone);
 
     // An element the page begins inside continues from the previous page; one
     // the page ends inside continues onto the next. Both are the author's to
@@ -393,4 +394,31 @@ function samePath(a: readonly number[], b: readonly number[]): boolean {
     if (a[i] !== b[i]) return false;
   }
   return true;
+}
+
+/** Marks an `<img>` clone with its source's natural size (`furniture.ts`). */
+export const NATURAL_SIZE = "data-folio-natural";
+
+/**
+ * Give an image's clone the natural size its source has.
+ *
+ * `settle` waits for the source's images, and the clone is not the source: it
+ * is a new `<img>` in the engine frame, which asks for its image again, and
+ * pagination measures it before the answer comes. A server that sends no
+ * freshness headers makes that true even of an image the same document has
+ * already decoded; a `data:` URL is no faster in Chromium. So a 215px image
+ * was measured at the height of its alt text and given the last 26px of a
+ * page (KFG1, 2026-11-06). The stamp's rule (`ensureFurnitureRules`) gives
+ * the box the source's natural size and ratio, weaker than any author rule.
+ */
+function stampNaturalSize(element: Element, clone: Element): void {
+  if (element.localName !== "img" || element.namespaceURI !== "http://www.w3.org/1999/xhtml") return;
+  const img = element as HTMLImageElement;
+  if (!img.complete || img.naturalWidth === 0 || img.naturalHeight === 0) return;
+  clone.setAttribute(NATURAL_SIZE, "");
+  const style = clone.getAttribute("style") ?? "";
+  clone.setAttribute(
+    "style",
+    `${style}${style === "" ? "" : ";"}--folio-natural-width:${img.naturalWidth};--folio-natural-height:${img.naturalHeight}`,
+  );
 }

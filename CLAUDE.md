@@ -307,6 +307,18 @@ reintroduce:
   inside a formula (`chunk.ts`), or the measuring box holds half a fraction —
   which Firefox reports as "Incorrect number of children for <mfrac/>".
 
+**An `<img>` clone is measured with its source's natural size**
+(`stampNaturalSize`, `compose.ts`; `images.spec.ts`). `settle` decodes the
+source's images, but a clone is a new `<img>` in the frame and asks again.
+With no freshness headers on the response, Chromium does not answer
+synchronously, even in a document that holds the image decoded or for a
+`data:` URL. So pagination measured the image at its alt text's height, and
+KFG1's 215px figure ran 190px into the footer. Preloading into the frame
+does not help. The stamp is a zero-specificity
+`contain: size` rule in the furniture sheet, which the host carries too. It
+matches the loaded image on all three engines, except an image that is
+itself a flex item in Chromium.
+
 `issues/duplicate-headers` was the third of those and was a real bug: the
 measuring box has running elements taken out before candidates are enumerated,
 and the *composed page* did not, so `paginate` measured a page with the running

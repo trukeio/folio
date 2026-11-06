@@ -55,7 +55,17 @@ export function ensureFurnitureRules(target: Document): void {
   // `page-left-right-*`).
   style.textContent =
     `${FURNITURE.join(", ")} { display: block }\n` +
-    `:where(folio-page) { background-color: white }`;
+    `:where(folio-page) { background-color: white }\n` +
+    // An image clone measured before it has loaded (`stampNaturalSize`,
+    // `compose.ts`) gets its source's natural size: a size-contained box
+    // that big, with its ratio on the content box as an image's is. Checked
+    // against the loaded image under `max-width`, `width`, `height`,
+    // padding, `object-fit` and the attributes, on all three engines; an
+    // image that is itself a flex item differs in Chromium, which shrinks
+    // a size-contained item below its intrinsic width.
+    `:where(img[data-folio-natural]) { contain: size; ` +
+    `contain-intrinsic-size: calc(var(--folio-natural-width) * 1px) calc(var(--folio-natural-height) * 1px); ` +
+    `aspect-ratio: auto var(--folio-natural-width) / var(--folio-natural-height) }`;
   target.head.append(style);
 }
 
